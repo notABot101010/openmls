@@ -236,7 +236,7 @@ fn secret_tree() {
         EncryptionSecret::from_slice(
             &provider
                 .rand()
-                .random_vec(ciphersuite.hash_length())
+                .random_vec(ciphersuite.hash_length().expect("Unsupported ciphersuite"))
                 .expect("An unexpected error occurred.")[..],
         ),
         TreeSize::new(n_leaves),

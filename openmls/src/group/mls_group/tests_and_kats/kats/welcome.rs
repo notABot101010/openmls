@@ -123,7 +123,7 @@ pub fn run_test_vector(test_vector: WelcomeTestVector) -> Result<(), &'static st
     let signer_pub = {
         OpenMlsSignaturePublicKey::from_signature_key(
             SignaturePublicKey::from(test_vector.signer_pub),
-            cipher_suite.signature_algorithm(),
+            cipher_suite.signature_algorithm().expect("Unsupported ciphersuite"),
         )
     };
 

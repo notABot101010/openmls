@@ -171,7 +171,7 @@ impl RatchetTree {
                                 .signature_key()
                                 .clone()
                                 .into_signature_public_key_enriched(
-                                    ciphersuite.signature_algorithm(),
+                                    ciphersuite.signature_algorithm().expect("Unsupported ciphersuite"),
                                 );
                             Some(Node::leaf_node(match verifiable_leaf_node {
                                 VerifiableLeafNode::KeyPackage(leaf_node) => leaf_node

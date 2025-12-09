@@ -11,7 +11,7 @@ pub(crate) fn key_package(
     provider: &impl OpenMlsProvider,
 ) -> (KeyPackageBundle, Credential, SignatureKeyPair) {
     let credential = BasicCredential::new(b"Sasha".to_vec());
-    let signer = SignatureKeyPair::new(ciphersuite.signature_algorithm()).unwrap();
+    let signer = SignatureKeyPair::new(ciphersuite.signature_algorithm().expect("Unsupported ciphersuite")).unwrap();
 
     // Generate a valid KeyPackage.
     let key_package = KeyPackage::builder()
@@ -76,7 +76,7 @@ fn serialization() {
 fn application_id_extension() {
     let provider = &Provider::default();
     let credential = BasicCredential::new(b"Sasha".to_vec());
-    let signature_keys = SignatureKeyPair::new(ciphersuite.signature_algorithm()).unwrap();
+    let signature_keys = SignatureKeyPair::new(ciphersuite.signature_algorithm().expect("Unsupported ciphersuite")).unwrap();
 
     // Generate a valid KeyPackage.
     let id = b"application id" as &[u8];
@@ -160,7 +160,7 @@ fn key_package_validation() {
 fn last_resort_key_package() {
     let provider = &Provider::default();
     let credential = Credential::from(BasicCredential::new(b"Sasha".to_vec()));
-    let signature_keys = SignatureKeyPair::new(ciphersuite.signature_algorithm()).unwrap();
+    let signature_keys = SignatureKeyPair::new(ciphersuite.signature_algorithm().expect("Unsupported ciphersuite")).unwrap();
 
     // build without any other extensions
     let key_package = KeyPackage::builder()

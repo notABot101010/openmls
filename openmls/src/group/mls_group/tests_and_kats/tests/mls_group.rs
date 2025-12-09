@@ -324,7 +324,7 @@ fn export_secret() {
                 alice_provider.crypto(),
                 "test1",
                 &[],
-                ciphersuite.hash_length()
+                ciphersuite.hash_length().expect("Unsupported ciphersuite")
             )
             .expect("An unexpected error occurred.")
             != alice_group
@@ -332,7 +332,7 @@ fn export_secret() {
                     alice_provider.crypto(),
                     "test2",
                     &[],
-                    ciphersuite.hash_length()
+                    ciphersuite.hash_length().expect("Unsupported ciphersuite")
                 )
                 .expect("An unexpected error occurred.")
     );
@@ -342,7 +342,7 @@ fn export_secret() {
                 alice_provider.crypto(),
                 "test",
                 &[0u8],
-                ciphersuite.hash_length()
+                ciphersuite.hash_length().expect("Unsupported ciphersuite")
             )
             .expect("An unexpected error occurred.")
             != alice_group
@@ -350,7 +350,7 @@ fn export_secret() {
                     alice_provider.crypto(),
                     "test",
                     &[1u8],
-                    ciphersuite.hash_length()
+                    ciphersuite.hash_length().expect("Unsupported ciphersuite")
                 )
                 .expect("An unexpected error occurred.")
     )
@@ -545,7 +545,7 @@ fn staged_join() {
                 alice_provider.crypto(),
                 "test",
                 &[],
-                ciphersuite.hash_length()
+                ciphersuite.hash_length().expect("Unsupported ciphersuite")
             )
             .expect("An unexpected error occurred."),
         bob_group
@@ -553,7 +553,7 @@ fn staged_join() {
                 bob_provider.crypto(),
                 "test",
                 &[],
-                ciphersuite.hash_length()
+                ciphersuite.hash_length().expect("Unsupported ciphersuite")
             )
             .expect("An unexpected error occurred.")
     );
@@ -754,7 +754,7 @@ fn test_verify_staged_commit_credentials() {
                 alice_provider.crypto(),
                 "test",
                 &[],
-                ciphersuite.hash_length()
+                ciphersuite.hash_length().expect("Unsupported ciphersuite")
             )
             .unwrap(),
         alice_group
@@ -762,7 +762,7 @@ fn test_verify_staged_commit_credentials() {
                 alice_provider.crypto(),
                 "test",
                 &[],
-                ciphersuite.hash_length()
+                ciphersuite.hash_length().expect("Unsupported ciphersuite")
             )
             .unwrap()
     );
@@ -846,7 +846,7 @@ fn test_verify_staged_commit_credentials() {
                     bob_provider.crypto(),
                     "test",
                     &[],
-                    ciphersuite.hash_length()
+                    ciphersuite.hash_length().expect("Unsupported ciphersuite")
                 )
                 .unwrap(),
             alice_group
@@ -854,7 +854,7 @@ fn test_verify_staged_commit_credentials() {
                     alice_provider.crypto(),
                     "test",
                     &[],
-                    ciphersuite.hash_length()
+                    ciphersuite.hash_length().expect("Unsupported ciphersuite")
                 )
                 .unwrap()
         );
@@ -957,7 +957,7 @@ fn test_commit_with_update_path_leaf_node() {
                 bob_provider.crypto(),
                 "test",
                 &[],
-                ciphersuite.hash_length()
+                ciphersuite.hash_length().expect("Unsupported ciphersuite")
             )
             .unwrap(),
         alice_group
@@ -965,7 +965,7 @@ fn test_commit_with_update_path_leaf_node() {
                 alice_provider.crypto(),
                 "test",
                 &[],
-                ciphersuite.hash_length()
+                ciphersuite.hash_length().expect("Unsupported ciphersuite")
             )
             .unwrap()
     );
@@ -1061,7 +1061,7 @@ fn test_commit_with_update_path_leaf_node() {
                     alice_provider.crypto(),
                     "test",
                     &[],
-                    ciphersuite.hash_length()
+                    ciphersuite.hash_length().expect("Unsupported ciphersuite")
                 )
                 .unwrap(),
             alice_group
@@ -1069,7 +1069,7 @@ fn test_commit_with_update_path_leaf_node() {
                     alice_provider.crypto(),
                     "test",
                     &[],
-                    ciphersuite.hash_length()
+                    ciphersuite.hash_length().expect("Unsupported ciphersuite")
                 )
                 .unwrap()
         );
@@ -1240,7 +1240,7 @@ fn test_pending_commit_logic() {
                 bob_provider.crypto(),
                 "test",
                 &[],
-                ciphersuite.hash_length()
+                ciphersuite.hash_length().expect("Unsupported ciphersuite")
             )
             .unwrap(),
         alice_group
@@ -1248,7 +1248,7 @@ fn test_pending_commit_logic() {
                 alice_provider.crypto(),
                 "test",
                 &[],
-                ciphersuite.hash_length()
+                ciphersuite.hash_length().expect("Unsupported ciphersuite")
             )
             .unwrap()
     );
@@ -2356,7 +2356,7 @@ fn deletion() {
     SignatureKeyPair::delete(
         alice_provider.storage(),
         alice_pk.as_slice(),
-        ciphersuite.signature_algorithm(),
+        ciphersuite.signature_algorithm().expect("Unsupported ciphersuite"),
     )
     .unwrap();
 
@@ -2435,7 +2435,7 @@ fn failed_groupinfo_decryption() {
 
     // Create credentials and keys
     let (alice_credential_with_key, alice_signature_keys) =
-        new_credential(provider, b"Alice", ciphersuite.signature_algorithm());
+        new_credential(provider, b"Alice", ciphersuite.signature_algorithm().expect("Unsupported ciphersuite"));
 
     let key_package_bundle = KeyPackageBundle::generate(
         provider,
@@ -2771,7 +2771,7 @@ fn own_commit_processing() {
     // Basic group setup.
     let alice_provider = &Provider::default();
     let (alice_credential_with_key, alice_signature_keys) =
-        new_credential(alice_provider, b"Alice", ciphersuite.signature_algorithm());
+        new_credential(alice_provider, b"Alice", ciphersuite.signature_algorithm().expect("Unsupported ciphersuite"));
 
     // === Alice creates a group ===
     let mut alice_group = MlsGroup::builder()

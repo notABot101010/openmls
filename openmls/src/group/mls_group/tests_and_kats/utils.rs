@@ -16,10 +16,10 @@ pub(crate) fn setup_alice_group(
 ) {
     // Create credentials and keys
     let (alice_credential_with_key, alice_signature_keys) =
-        test_utils::new_credential(provider, b"Alice", ciphersuite.signature_algorithm());
+        test_utils::new_credential(provider, b"Alice", ciphersuite.signature_algorithm().expect("Unsupported ciphersuite"));
     let pk = OpenMlsSignaturePublicKey::new(
         alice_signature_keys.to_public_vec().into(),
-        ciphersuite.signature_algorithm(),
+        ciphersuite.signature_algorithm().expect("Unsupported ciphersuite"),
     )
     .unwrap();
 
@@ -63,9 +63,9 @@ pub(crate) fn setup_alice_bob(
 ) {
     // Create credentials and keys
     let (alice_credential_with_key, alice_signer) =
-        test_utils::new_credential(alice_provider, b"Alice", ciphersuite.signature_algorithm());
+        test_utils::new_credential(alice_provider, b"Alice", ciphersuite.signature_algorithm().expect("Unsupported ciphersuite"));
     let (bob_credential_with_key, bob_signer) =
-        test_utils::new_credential(bob_provider, b"Bob", ciphersuite.signature_algorithm());
+        test_utils::new_credential(bob_provider, b"Bob", ciphersuite.signature_algorithm().expect("Unsupported ciphersuite"));
 
     // Generate Bob's KeyPackage
     let bob_key_package_bundle = KeyPackageBundle::generate(
@@ -94,10 +94,10 @@ pub(crate) fn setup_client(
     OpenMlsSignaturePublicKey,
 ) {
     let (credential_with_key, signature_keys) =
-        test_utils::new_credential(provider, id.as_bytes(), ciphersuite.signature_algorithm());
+        test_utils::new_credential(provider, id.as_bytes(), ciphersuite.signature_algorithm().expect("Unsupported ciphersuite"));
     let pk = OpenMlsSignaturePublicKey::new(
         signature_keys.to_public_vec().into(),
-        ciphersuite.signature_algorithm(),
+        ciphersuite.signature_algorithm().expect("Unsupported ciphersuite"),
     )
     .unwrap();
 
@@ -125,9 +125,9 @@ pub(crate) fn setup_alice_bob_group<Provider: OpenMlsProvider>(
 ) {
     // Create credentials and keys
     let (alice_credential, alice_signature_keys) =
-        test_utils::new_credential(alice_provider, b"Alice", ciphersuite.signature_algorithm());
+        test_utils::new_credential(alice_provider, b"Alice", ciphersuite.signature_algorithm().expect("Unsupported ciphersuite"));
     let (bob_credential, bob_signature_keys) =
-        test_utils::new_credential(bob_provider, b"Bob", ciphersuite.signature_algorithm());
+        test_utils::new_credential(bob_provider, b"Bob", ciphersuite.signature_algorithm().expect("Unsupported ciphersuite"));
 
     // Generate KeyPackages
     let bob_key_package_bundle = KeyPackageBundle::generate(

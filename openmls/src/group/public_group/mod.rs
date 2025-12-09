@@ -241,7 +241,7 @@ impl PublicGroup {
                 .ok_or(CreationFromExternalError::UnknownSender)?
                 .signature_key()
                 .clone()
-                .into_signature_public_key_enriched(ciphersuite.signature_algorithm());
+                .into_signature_public_key_enriched(ciphersuite.signature_algorithm().expect("Unsupported ciphersuite"));
 
             verifiable_group_info
                 .verify(crypto, &signer_signature_key)

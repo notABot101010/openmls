@@ -83,13 +83,13 @@ fn generate(
     let crypto = OpenMlsRustCrypto::default();
     let tree_hash = crypto
         .rand()
-        .random_vec(ciphersuite.hash_length())
+        .random_vec(ciphersuite.hash_length().expect("Unsupported ciphersuite"))
         .expect("An unexpected error occurred.");
     let commit_secret = CommitSecret::random(ciphersuite, crypto.rand());
 
     let confirmed_transcript_hash = crypto
         .rand()
-        .random_vec(ciphersuite.hash_length())
+        .random_vec(ciphersuite.hash_length().expect("Unsupported ciphersuite"))
         .expect("An unexpected error occurred.");
 
     // PSK secret can sometimes be the all zero vector
@@ -97,7 +97,7 @@ fn generate(
     let psk_secret = if a[0] > 127 {
         PskSecret::from(Secret::random(ciphersuite, crypto.rand()).unwrap())
     } else {
-        PskSecret::from(Secret::zero(ciphersuite))
+        PskSecret::from(Secret::zero(ciphersuite).unwrap())
     };
 
     let group_context = GroupContext::new(
@@ -241,7 +241,7 @@ pub fn generate_test_vector(
     }
 
     KeyScheduleTestVector {
-        cipher_suite: ciphersuite as u16,
+        cipher_suite: u16::from(ciphersuite),
         group_id: bytes_to_hex(&group_id),
         initial_init_secret: bytes_to_hex(initial_init_secret.as_slice()),
         epochs,

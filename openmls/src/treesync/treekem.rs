@@ -415,7 +415,7 @@ impl UpdatePathIn {
                 let pk = &commit_leaf_node
                     .signature_key()
                     .clone()
-                    .into_signature_public_key_enriched(ciphersuite.signature_algorithm());
+                    .into_signature_public_key_enriched(ciphersuite.signature_algorithm().expect("Unsupported ciphersuite"));
                 commit_leaf_node.add_tree_position(tree_position);
 
                 let leaf_node: LeafNode = commit_leaf_node.verify(crypto, pk)?;

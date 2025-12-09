@@ -164,7 +164,7 @@ fn group(
 ) -> (MlsGroup, CredentialWithKey, SignatureKeyPair) {
     let (credential_with_key, signer) = generate_credential(
         "Kreator".into(),
-        ciphersuite.signature_algorithm(),
+        ciphersuite.signature_algorithm().expect("Unsupported ciphersuite"),
         provider,
     );
 
@@ -184,7 +184,7 @@ fn receiver_group(
 ) -> (MlsGroup, CredentialWithKey, SignatureKeyPair) {
     let (credential_with_key, signer) = generate_credential(
         "Receiver".into(),
-        ciphersuite.signature_algorithm(),
+        ciphersuite.signature_algorithm().expect("Unsupported ciphersuite"),
         provider,
     );
 
@@ -335,7 +335,7 @@ pub fn generate_test_vector(
     let provider = OpenMlsRustCrypto::default();
     let encryption_secret_bytes = provider
         .rand()
-        .random_vec(ciphersuite.hash_length())
+        .random_vec(ciphersuite.hash_length().expect("Unsupported ciphersuite"))
         .expect("An unexpected error occurred.");
     let sender_data_secret = SenderDataSecret::random(ciphersuite, provider.rand());
     let sender_data_secret_bytes = sender_data_secret.as_slice();
@@ -434,7 +434,7 @@ pub fn generate_test_vector(
     }
 
     EncryptionTestVector {
-        cipher_suite: ciphersuite_name as u16,
+        cipher_suite: u16::from(ciphersuite_name),
         n_leaves,
         encryption_secret: bytes_to_hex(&encryption_secret_bytes),
         sender_data_secret: bytes_to_hex(sender_data_secret_bytes),

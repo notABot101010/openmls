@@ -33,7 +33,7 @@ fn new_test_group(
 
     // Generate credentials with keys
     let credential_with_keys =
-        generate_credential_with_key(identity.into(), ciphersuite.signature_algorithm(), provider);
+        generate_credential_with_key(identity.into(), ciphersuite.signature_algorithm().expect("Unsupported ciphersuite"), provider);
 
     // Define the MlsGroup configuration
     let mls_group_create_config = MlsGroupCreateConfig::builder()
@@ -67,7 +67,7 @@ fn validation_test_setup(
 
     let bob_credential_with_key = generate_credential_with_key(
         "Bob".into(),
-        ciphersuite.signature_algorithm(),
+        ciphersuite.signature_algorithm().expect("Unsupported ciphersuite"),
         bob_provider,
     );
 
@@ -136,7 +136,7 @@ fn external_join_add_proposal_should_succeed() {
         let charlie_provider = &Provider::default();
         let charlie_credential = generate_credential_with_key(
             "Charlie".into(),
-            ciphersuite.signature_algorithm(),
+            ciphersuite.signature_algorithm().expect("Unsupported ciphersuite"),
             charlie_provider,
         );
 
@@ -257,14 +257,14 @@ fn external_join_add_proposal_should_be_signed_by_key_package_it_references() {
 
     let attacker_credential = generate_credential_with_key(
         "Attacker".into(),
-        ciphersuite.signature_algorithm(),
+        ciphersuite.signature_algorithm().expect("Unsupported ciphersuite"),
         attacker_provider,
     );
 
     // A new client, Charlie, will now ask joining with an external Add proposal
     let charlie_credential = generate_credential_with_key(
         "Charlie".into(),
-        ciphersuite.signature_algorithm(),
+        ciphersuite.signature_algorithm().expect("Unsupported ciphersuite"),
         charlie_provider,
     );
 
@@ -319,7 +319,7 @@ fn test_valn1504() {
         let charlie_provider = &Provider::default();
         let charlie_credential = generate_credential_with_key(
             "Charlie".into(),
-            ciphersuite.signature_algorithm(),
+            ciphersuite.signature_algorithm().expect("Unsupported ciphersuite"),
             charlie_provider,
         );
 
@@ -387,7 +387,7 @@ fn new_member_proposal_sender_should_be_reserved_for_join_proposals() {
     // Add proposal can have a 'new_member_proposal' sender
     let any_credential = generate_credential_with_key(
         "Any".into(),
-        ciphersuite.signature_algorithm(),
+        ciphersuite.signature_algorithm().expect("Unsupported ciphersuite"),
         any_provider,
     );
 

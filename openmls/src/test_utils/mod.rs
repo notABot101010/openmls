@@ -119,7 +119,7 @@ pub(crate) fn generate_group_candidate(
     let credential_with_key_and_signer = {
         let credential = BasicCredential::new(identity.to_vec());
 
-        let signature_keypair = SignatureKeyPair::new(ciphersuite.signature_algorithm()).unwrap();
+        let signature_keypair = SignatureKeyPair::new(ciphersuite.signature_algorithm().expect("Unsupported ciphersuite")).unwrap();
 
         // Store if there is a key store.
         if use_store {
@@ -128,7 +128,7 @@ pub(crate) fn generate_group_candidate(
 
         let signature_pkey = OpenMlsSignaturePublicKey::new(
             signature_keypair.to_public_vec().into(),
-            ciphersuite.signature_algorithm(),
+            ciphersuite.signature_algorithm().expect("Unsupported ciphersuite"),
         )
         .unwrap();
 

@@ -299,7 +299,7 @@ pub fn run_test_vector(
 
         let mut parsed = ParsedSignWithLabel {
             key: SignatureKeyPair::from_raw(
-                ciphersuite.signature_algorithm(),
+                ciphersuite.signature_algorithm().expect("Unsupported ciphersuite"),
                 private,
                 public.clone(),
             ),
@@ -318,7 +318,7 @@ pub fn run_test_vector(
                 provider.crypto(),
                 &OpenMlsSignaturePublicKey::new(
                     public.clone().into(),
-                    ciphersuite.signature_algorithm(),
+                    ciphersuite.signature_algorithm().expect("Unsupported ciphersuite"),
                 )
                 .unwrap(),
             )
@@ -329,7 +329,7 @@ pub fn run_test_vector(
         parsed
             .verify(
                 provider.crypto(),
-                &OpenMlsSignaturePublicKey::new(public.into(), ciphersuite.signature_algorithm())
+                &OpenMlsSignaturePublicKey::new(public.into(), ciphersuite.signature_algorithm().expect("Unsupported ciphersuite"))
                     .unwrap(),
             )
             .expect("Signature verification failed");

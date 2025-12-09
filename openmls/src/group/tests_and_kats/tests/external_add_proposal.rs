@@ -18,7 +18,7 @@ fn new_test_group(
 
     // Generate credentials with keys
     let credential_with_keys =
-        generate_credential_with_key(identity.into(), ciphersuite.signature_algorithm(), provider);
+        generate_credential_with_key(identity.into(), ciphersuite.signature_algorithm().expect("Unsupported ciphersuite"), provider);
 
     // Define the MlsGroup configuration
     let mls_group_config = MlsGroupCreateConfig::builder()
@@ -62,7 +62,7 @@ fn validation_test_setup(
 
     let bob_credential_with_key = generate_credential_with_key(
         "Bob".into(),
-        ciphersuite.signature_algorithm(),
+        ciphersuite.signature_algorithm().expect("Unsupported ciphersuite"),
         bob_provider,
     );
 
@@ -97,7 +97,7 @@ fn external_add_proposal_should_suceeed() {
     // delivery service credentials. DS will craft an external add proposal
     let ds_credential_with_key = generate_credential_with_key(
         "delivery-service".into(),
-        ciphersuite.signature_algorithm(),
+        ciphersuite.signature_algorithm().expect("Unsupported ciphersuite"),
         alice_provider,
     );
 
@@ -129,7 +129,7 @@ fn external_add_proposal_should_suceeed() {
     let charlie_provider = &Provider::default();
     let charlie_credential = generate_credential_with_key(
         "Charlie".into(),
-        ciphersuite.signature_algorithm(),
+        ciphersuite.signature_algorithm().expect("Unsupported ciphersuite"),
         charlie_provider,
     );
 
@@ -207,7 +207,7 @@ fn external_add_proposal_should_fail_when_invalid_external_senders_index<
     // delivery service credentials. DS will craft an external add proposal
     let ds_credential_with_key = generate_credential_with_key(
         "delivery-service".into(),
-        ciphersuite.signature_algorithm(),
+        ciphersuite.signature_algorithm().expect("Unsupported ciphersuite"),
         ds_provider,
     );
 
@@ -232,7 +232,7 @@ fn external_add_proposal_should_fail_when_invalid_external_senders_index<
     let charlie_provider = &Provider::default();
     let charlie_credential = generate_credential_with_key(
         "Charlie".into(),
-        ciphersuite.signature_algorithm(),
+        ciphersuite.signature_algorithm().expect("Unsupported ciphersuite"),
         charlie_provider,
     );
 
@@ -278,7 +278,7 @@ fn external_add_proposal_should_fail_when_invalid_signature() {
     // delivery service credentials. DS will craft an external add proposal
     let ds_credential_with_key = generate_credential_with_key(
         "delivery-service".into(),
-        ciphersuite.signature_algorithm(),
+        ciphersuite.signature_algorithm().expect("Unsupported ciphersuite"),
         ds_provider,
     );
 
@@ -298,7 +298,7 @@ fn external_add_proposal_should_fail_when_invalid_signature() {
 
     let ds_invalid_credential_with_key = generate_credential_with_key(
         "delivery-service-invalid".into(),
-        ciphersuite.signature_algorithm(),
+        ciphersuite.signature_algorithm().expect("Unsupported ciphersuite"),
         ds_provider,
     );
 
@@ -306,7 +306,7 @@ fn external_add_proposal_should_fail_when_invalid_signature() {
     let charlie_provider = &Provider::default();
     let charlie_credential = generate_credential_with_key(
         "Charlie".into(),
-        ciphersuite.signature_algorithm(),
+        ciphersuite.signature_algorithm().expect("Unsupported ciphersuite"),
         charlie_provider,
     );
 
@@ -360,7 +360,7 @@ fn external_add_proposal_should_fail_when_no_external_senders() {
     // delivery service credentials. DS will craft an external add proposal
     let ds_credential_with_key = generate_credential_with_key(
         "delivery-service".into(),
-        ciphersuite.signature_algorithm(),
+        ciphersuite.signature_algorithm().expect("Unsupported ciphersuite"),
         ds_provider,
     );
 
@@ -368,7 +368,7 @@ fn external_add_proposal_should_fail_when_no_external_senders() {
     let charlie_provider = &Provider::default();
     let charlie_credential = generate_credential_with_key(
         "Charlie".into(),
-        ciphersuite.signature_algorithm(),
+        ciphersuite.signature_algorithm().expect("Unsupported ciphersuite"),
         charlie_provider,
     );
 

@@ -149,7 +149,7 @@ impl<Provider: OpenMlsProvider + Default> MlsGroupTestSetup<Provider> {
             for ciphersuite in provider.crypto().supported_ciphersuites().iter() {
                 let credential = BasicCredential::new(identity.clone());
                 let signature_keys =
-                    SignatureKeyPair::new(ciphersuite.signature_algorithm()).unwrap();
+                    SignatureKeyPair::new(ciphersuite.signature_algorithm().expect("Unsupported ciphersuite")).unwrap();
                 signature_keys.store(provider.storage()).unwrap();
                 let signature_key = OpenMlsSignaturePublicKey::new(
                     signature_keys.public().into(),
@@ -397,7 +397,7 @@ impl<Provider: OpenMlsProvider + Default> MlsGroupTestSetup<Provider> {
                     let signer = SignatureKeyPair::read(
                         m.provider.storage(),
                         signature_pk.as_slice(),
-                        group_state.ciphersuite().signature_algorithm(),
+                        group_state.ciphersuite().signature_algorithm().expect("Unsupported ciphersuite"),
                     )
                     .unwrap();
                     let message = group_state

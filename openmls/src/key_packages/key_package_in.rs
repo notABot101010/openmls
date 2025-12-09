@@ -143,7 +143,7 @@ impl KeyPackageIn {
 
         let signature_key = &OpenMlsSignaturePublicKey::from_signature_key(
             self.payload.leaf_node.signature_key().clone(),
-            self.payload.ciphersuite.signature_algorithm(),
+            self.payload.ciphersuite.signature_algorithm().expect("Unsupported ciphersuite"),
         );
 
         // https://validation.openmls.tech/#valn0108

@@ -220,7 +220,7 @@ fn test_welcome_message() {
     };
 
     // We need a signer
-    let signer = SignatureKeyPair::new(ciphersuite.signature_algorithm()).unwrap();
+    let signer = SignatureKeyPair::new(ciphersuite.signature_algorithm().expect("Unsupported ciphersuite")).unwrap();
 
     let group_info = group_info_tbs
         .sign(&signer)

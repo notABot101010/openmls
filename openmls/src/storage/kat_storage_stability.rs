@@ -167,17 +167,17 @@ fn helper_generate_kat<Provider: OpenMlsProvider + Default>(
 ) -> (GroupId, Vec<Vec<u8>>) {
     let alice_provider = StorageTestProvider::<Provider>::new("alice");
     let (alice_cwk, alice_signer) =
-        new_credential(&alice_provider, b"alice", ciphersuite.signature_algorithm());
+        new_credential(&alice_provider, b"alice", ciphersuite.signature_algorithm().expect("Unsupported ciphersuite"));
 
     let bob_provider = StorageTestProvider::<Provider>::new("bob");
     let (bob_cwk, bob_signer) =
-        new_credential(&bob_provider, b"bob", ciphersuite.signature_algorithm());
+        new_credential(&bob_provider, b"bob", ciphersuite.signature_algorithm().expect("Unsupported ciphersuite"));
 
     let charlie_provider = StorageTestProvider::<Provider>::new("charlie");
     let (charlie_cwk, charlie_signer) = new_credential(
         &charlie_provider,
         b"charlie",
-        ciphersuite.signature_algorithm(),
+        ciphersuite.signature_algorithm().expect("Unsupported ciphersuite"),
     );
 
     /////// prepare a group that has some content

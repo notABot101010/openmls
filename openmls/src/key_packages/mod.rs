@@ -36,7 +36,7 @@
 //!
 //! let credential = BasicCredential::new("identity".into());
 //! let signer =
-//!     SignatureKeyPair::new(ciphersuite.signature_algorithm())
+//!     SignatureKeyPair::new(ciphersuite.signature_algorithm().expect("Unsupported ciphersuite"))
 //!         .expect("Error generating a signature key pair.");
 //! let credential_with_key = CredentialWithKey {
 //!     credential: credential.into(),
@@ -291,7 +291,7 @@ impl KeyPackage {
         leaf_node_capabilities: Capabilities,
         leaf_node_extensions: Extensions,
     ) -> Result<KeyPackageCreationResult, KeyPackageNewError> {
-        if ciphersuite.signature_algorithm() != signer.signature_scheme() {
+        if ciphersuite.signature_algorithm().expect("Unsupported ciphersuite") != signer.signature_scheme() {
             return Err(KeyPackageNewError::CiphersuiteSignatureSchemeMismatch);
         }
 

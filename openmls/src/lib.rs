@@ -64,14 +64,14 @@
 //! let (sasha_credential_with_key, sasha_signer) = generate_credential_with_key(
 //!     "Sasha".into(),
 //!     CredentialType::Basic,
-//!     ciphersuite.signature_algorithm(),
+//!     ciphersuite.signature_algorithm().expect("Unsupported ciphersuite"),
 //!     provider,
 //! );
 //!
 //! let (maxim_credential_with_key, maxim_signer) = generate_credential_with_key(
 //!     "Maxim".into(),
 //!     CredentialType::Basic,
-//!     ciphersuite.signature_algorithm(),
+//!     ciphersuite.signature_algorithm().expect("Unsupported ciphersuite"),
 //!     provider,
 //! );
 //!

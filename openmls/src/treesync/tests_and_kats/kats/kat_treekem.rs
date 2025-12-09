@@ -110,7 +110,7 @@ pub fn run_test_vector(test: TreeKemTest, provider: &impl OpenMlsProvider) {
             let signature_key = own_leaf.signature_key();
             let private_key = leaf_private_test.signature_priv.clone();
             let signature_keypair = SignatureKeyPair::from_raw(
-                ciphersuite.signature_algorithm(),
+                ciphersuite.signature_algorithm().expect("Unsupported ciphersuite"),
                 private_key,
                 signature_key.as_slice().to_vec(),
             );
@@ -237,7 +237,7 @@ pub fn run_test_vector(test: TreeKemTest, provider: &impl OpenMlsProvider) {
                     .unwrap();
 
                 SignatureKeyPair::from_raw(
-                    ciphersuite.signature_algorithm(),
+                    ciphersuite.signature_algorithm().expect("Unsupported ciphersuite"),
                     full_leaf.signature_keypair.private().to_vec(),
                     full_leaf.signature_keypair.to_public_vec(),
                 )

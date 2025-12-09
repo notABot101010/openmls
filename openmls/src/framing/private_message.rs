@@ -191,7 +191,7 @@ impl PrivateMessage {
                 &Self::encode_padded_ciphertext_content_detached(
                     public_message,
                     padding_size,
-                    ciphersuite.mac_length(),
+                    ciphersuite.mac_length().expect("Unsupported ciphersuite"),
                 )
                 .map_err(LibraryError::missing_bound_check)?,
                 &private_message_content_aad_bytes,

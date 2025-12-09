@@ -88,7 +88,7 @@ impl PublicGroup {
             signature_key,
             self.ciphersuite()
                 .signature_algorithm()
-                .ok_or(ProcessMessageError::UnsupportedProposal)?,
+                .expect("Unsupported ciphersuite"),
         );
 
         // For commit messages, we need to check if the sender is a member or a
