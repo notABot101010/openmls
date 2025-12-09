@@ -36,7 +36,7 @@
 //!
 //! let credential = BasicCredential::new("identity".into());
 //! let signer =
-//!     SignatureKeyPair::new(ciphersuite.signature_algorithm())
+//!     SignatureKeyPair::new(ciphersuite.signature_algorithm().expect("Unsupported ciphersuite"))
 //!         .expect("Error generating a signature key pair.");
 //! let credential_with_key = CredentialWithKey {
 //!     credential: credential.into(),
@@ -291,7 +291,7 @@ impl KeyPackage {
         leaf_node_capabilities: Capabilities,
         leaf_node_extensions: Extensions,
     ) -> Result<KeyPackageCreationResult, KeyPackageNewError> {
-        if ciphersuite.signature_algorithm() != signer.signature_scheme() {
+        if ciphersuite.signature_algorithm().expect("Unsupported ciphersuite") != signer.signature_scheme() {
             return Err(KeyPackageNewError::CiphersuiteSignatureSchemeMismatch);
         }
 
@@ -300,7 +300,7 @@ impl KeyPackage {
             .map_err(LibraryError::unexpected_crypto_error)?;
         let init_key = provider
             .crypto()
-            .derive_hpke_keypair(ciphersuite.hpke_config(), ikm.as_slice())
+            .derive_hpke_keypair(ciphersuite, ikm.as_slice())
             .map_err(|e| {
                 KeyPackageNewError::LibraryError(LibraryError::unexpected_crypto_error(e))
             })?;

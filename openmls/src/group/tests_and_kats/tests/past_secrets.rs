@@ -23,12 +23,12 @@ fn test_past_secrets_in_group<Provider: crate::storage::OpenMlsProvider>(
         // Generate credentials
         let alice_credential_with_keys = generate_credential_with_key(
             b"Alice".to_vec(),
-            ciphersuite.signature_algorithm(),
+            ciphersuite.signature_algorithm().expect("Unsupported ciphersuite"),
             alice_provider,
         );
         let bob_credential_with_keys = generate_credential_with_key(
             b"Bob".to_vec(),
-            ciphersuite.signature_algorithm(),
+            ciphersuite.signature_algorithm().expect("Unsupported ciphersuite"),
             bob_provider,
         );
 

@@ -45,7 +45,7 @@ fn generate_credential_with_key_and_key_package(
     provider: &impl OpenMlsProvider,
 ) -> (CredentialWithKeyAndSigner, KeyPackageBundle) {
     let credential_with_key_and_signer =
-        generate_credential_with_key(identity, ciphersuite.signature_algorithm(), provider);
+        generate_credential_with_key(identity, ciphersuite.signature_algorithm().expect("Unsupported ciphersuite"), provider);
 
     let key_package = generate_key_package(
         ciphersuite,
@@ -109,7 +109,7 @@ fn new_test_group(
 
     // Generate credentials with keys
     let credential_with_key_and_signer =
-        generate_credential_with_key(identity.into(), ciphersuite.signature_algorithm(), provider);
+        generate_credential_with_key(identity.into(), ciphersuite.signature_algorithm().expect("Unsupported ciphersuite"), provider);
 
     // Define the MlsGroup configuration
     let mls_group_create_config = MlsGroupCreateConfig::builder()
@@ -143,7 +143,7 @@ fn validation_test_setup(
 
     let bob_credential_with_key_and_signer = generate_credential_with_key(
         "Bob".into(),
-        ciphersuite.signature_algorithm(),
+        ciphersuite.signature_algorithm().expect("Unsupported ciphersuite"),
         bob_provider,
     );
 
@@ -266,12 +266,12 @@ fn test_valsem101a() {
         // 1. Initialize Bob and Charlie
         let bob_credential_with_keys = generate_credential_with_key(
             b"Bob".to_vec(),
-            ciphersuite.signature_algorithm(),
+            ciphersuite.signature_algorithm().expect("Unsupported ciphersuite"),
             bob_provider,
         );
         let mut charlie_credential_with_keys = generate_credential_with_key(
             b"Charlie".to_vec(),
-            ciphersuite.signature_algorithm(),
+            ciphersuite.signature_algorithm().expect("Unsupported ciphersuite"),
             charlie_provider,
         );
 
@@ -641,7 +641,7 @@ fn test_valsem101b() {
     ] {
         // 0. Initialize Alice and Bob
         let new_kp = || {
-            openmls_basic_credential::SignatureKeyPair::new(ciphersuite.signature_algorithm())
+            openmls_basic_credential::SignatureKeyPair::new(ciphersuite.signature_algorithm().expect("Unsupported ciphersuite"))
                 .unwrap()
         };
         let shared_signature_keypair = new_kp();
@@ -2267,13 +2267,13 @@ fn valsem113() {
     // Generate credentials with keys
     let alice_credential_with_keys = generate_credential_with_key(
         b"alice".into(),
-        ciphersuite.signature_algorithm(),
+        ciphersuite.signature_algorithm().expect("Unsupported ciphersuite"),
         alice_provider,
     );
 
     let bob_credential_with_keys = generate_credential_with_key(
         b"bob".into(),
-        ciphersuite.signature_algorithm(),
+        ciphersuite.signature_algorithm().expect("Unsupported ciphersuite"),
         bob_provider,
     );
 
@@ -2415,12 +2415,12 @@ fn test_valsem401_valsem402() {
      (
          vec![PreSharedKeyId::external(
              b"irrelevant".to_vec(),
-             zero(ciphersuite.hash_length() + 1),
+             zero(ciphersuite.hash_length().expect("Unsupported ciphersuite") + 1),
          )],
          ProcessMessageError::InvalidCommit(StageCommitError::ProposalValidationError(
              ProposalValidationError::Psk(PskError::NonceLengthMismatch {
-                 expected: ciphersuite.hash_length(),
-                 got: ciphersuite.hash_length() + 1,
+                 expected: ciphersuite.hash_length().expect("Unsupported ciphersuite"),
+                 got: ciphersuite.hash_length().expect("Unsupported ciphersuite") + 1,
              }),
          )),
      ),
@@ -2428,12 +2428,12 @@ fn test_valsem401_valsem402() {
      (
          vec![PreSharedKeyId::external(
              b"irrelevant".to_vec(),
-             zero(ciphersuite.hash_length() - 1),
+             zero(ciphersuite.hash_length().expect("Unsupported ciphersuite") - 1),
          )],
          ProcessMessageError::InvalidCommit(StageCommitError::ProposalValidationError(
              ProposalValidationError::Psk(PskError::NonceLengthMismatch {
-                 expected: ciphersuite.hash_length(),
-                 got: ciphersuite.hash_length() - 1,
+                 expected: ciphersuite.hash_length().expect("Unsupported ciphersuite"),
+                 got: ciphersuite.hash_length().expect("Unsupported ciphersuite") - 1,
              }),
          )),
      ),
@@ -2443,7 +2443,7 @@ fn test_valsem401_valsem402() {
              ResumptionPskUsage::Reinit,
              alice_group.group_id().clone(),
              alice_group.epoch(),
-             zero(ciphersuite.hash_length()),
+             zero(ciphersuite.hash_length().expect("Unsupported ciphersuite")),
          )],
          ProcessMessageError::InvalidCommit(StageCommitError::ProposalValidationError(
              ProposalValidationError::Psk(PskError::UsageMismatch {
@@ -2458,7 +2458,7 @@ fn test_valsem401_valsem402() {
              ResumptionPskUsage::Branch,
              alice_group.group_id().clone(),
              alice_group.epoch(),
-             zero(ciphersuite.hash_length()),
+             zero(ciphersuite.hash_length().expect("Unsupported ciphersuite")),
          )],
          ProcessMessageError::InvalidCommit(StageCommitError::ProposalValidationError(
              ProposalValidationError::Psk(PskError::UsageMismatch {
@@ -2471,14 +2471,14 @@ fn test_valsem401_valsem402() {
      // ValSem403
      (
          vec![
-             PreSharedKeyId::external(b"irrelevant".to_vec(), zero(ciphersuite.hash_length())),
-             PreSharedKeyId::external(b"irrelevant".to_vec(), zero(ciphersuite.hash_length())),
+             PreSharedKeyId::external(b"irrelevant".to_vec(), zero(ciphersuite.hash_length().expect("Unsupported ciphersuite"))),
+             PreSharedKeyId::external(b"irrelevant".to_vec(), zero(ciphersuite.hash_length().expect("Unsupported ciphersuite"))),
          ],
          ProcessMessageError::InvalidCommit(StageCommitError::ProposalValidationError(
              ProposalValidationError::Psk(PskError::Duplicate {
                  first: PreSharedKeyId::external(
                      b"irrelevant".to_vec(),
-                     zero(ciphersuite.hash_length()),
+                     zero(ciphersuite.hash_length().expect("Unsupported ciphersuite")),
                  ),
              }),
          )),

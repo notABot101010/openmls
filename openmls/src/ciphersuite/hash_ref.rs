@@ -104,7 +104,7 @@ impl HashReference {
         let payload = input
             .tls_serialize_detached()
             .map_err(|_| CryptoError::TlsSerializationError)?;
-        let value = crypto.hash(ciphersuite.hash_algorithm(), &payload)?;
+        let value = crypto.hash(ciphersuite, &payload)?;
         Ok(Self {
             value: VLBytes::new(value),
         })

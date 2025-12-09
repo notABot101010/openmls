@@ -34,13 +34,13 @@ fn validation_test_setup(
     // Generate credentials with keys
     let alice_credential = generate_credential_with_key(
         "Alice".into(),
-        ciphersuite.signature_algorithm(),
+        ciphersuite.signature_algorithm().expect("Unsupported ciphersuite"),
         alice_provider,
     );
 
     let bob_credential = generate_credential_with_key(
         "Bob".into(),
-        ciphersuite.signature_algorithm(),
+        ciphersuite.signature_algorithm().expect("Unsupported ciphersuite"),
         bob_provider,
     );
 

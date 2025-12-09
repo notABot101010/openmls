@@ -264,7 +264,13 @@ impl MlsGroup {
                     apply_proposals_values.extensions.clone(),
                 )?;
 
-                (CommitSecret::zero_secret(ciphersuite), vec![], None, None)
+                (
+                    CommitSecret::zero_secret(ciphersuite)
+                        .map_err(|e| StageCommitError::LibraryError(LibraryError::unexpected_crypto_error(e)))?,
+                    vec![],
+                    None,
+                    None,
+                )
             };
 
         // Update the confirmed transcript hash before we compute the confirmation tag.

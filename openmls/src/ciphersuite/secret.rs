@@ -57,19 +57,25 @@ impl Secret {
         ciphersuite: Ciphersuite,
         rand: &impl OpenMlsRand,
     ) -> Result<Self, CryptoError> {
+        let hash_length = ciphersuite
+            .hash_length()
+            .ok_or(CryptoError::UnsupportedCiphersuite)?;
         Ok(Secret {
             value: rand
-                .random_vec(ciphersuite.hash_length())
+                .random_vec(hash_length)
                 .map_err(|_| CryptoError::InsufficientRandomness)?
                 .into(),
         })
     }
 
     /// Create an all zero secret.
-    pub(crate) fn zero(ciphersuite: Ciphersuite) -> Self {
-        Self {
-            value: vec![0u8; ciphersuite.hash_length()].into(),
-        }
+    pub(crate) fn zero(ciphersuite: Ciphersuite) -> Result<Self, CryptoError> {
+        let hash_length = ciphersuite
+            .hash_length()
+            .ok_or(CryptoError::UnsupportedCiphersuite)?;
+        Ok(Self {
+            value: vec![0u8; hash_length].into(),
+        })
     }
 
     /// Create a new secret from a byte vector.
@@ -88,13 +94,13 @@ impl Secret {
     ) -> Result<Self, CryptoError> {
         log::trace!("HKDF extract with");
         log_crypto!(trace, "  salt: {:x?}", self.value);
-        let zero_secret = Self::zero(ciphersuite);
+        let zero_secret = Self::zero(ciphersuite)?;
         let ikm = ikm_option.into().unwrap_or(&zero_secret);
         log_crypto!(trace, "  ikm:  {:x?}", ikm.value);
 
         Ok(Self {
             value: crypto.hkdf_extract(
-                ciphersuite.hash_algorithm(),
+                ciphersuite,
                 self.value.as_slice(),
                 ikm.value.as_slice(),
             )?,
@@ -115,7 +121,7 @@ impl Secret {
 
         Ok(Self {
             value: crypto.hmac(
-                ciphersuite.hash_algorithm(),
+                ciphersuite,
                 self.value.as_slice(),
                 message_tbh.as_slice(),
             )?,
@@ -132,7 +138,7 @@ impl Secret {
     ) -> Result<Self, CryptoError> {
         let key = crypto
             .hkdf_expand(
-                ciphersuite.hash_algorithm(),
+                ciphersuite,
                 self.value.as_slice(),
                 info,
                 okm_len,
@@ -181,7 +187,10 @@ impl Secret {
             self.value,
             label
         );
-        self.kdf_expand_label(crypto, ciphersuite, label, &[], ciphersuite.hash_length())
+        let hash_length = ciphersuite
+            .hash_length()
+            .ok_or(CryptoError::UnsupportedCiphersuite)?;
+        self.kdf_expand_label(crypto, ciphersuite, label, &[], hash_length)
     }
 
     /// Returns the inner bytes of a secret

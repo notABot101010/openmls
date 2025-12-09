@@ -144,10 +144,10 @@ pub fn run_test_vector(
     // Set up the group, unfortunately we can't do without.
     let signature_private_key = hex_to_bytes(&test.signature_priv);
     let random_own_signature_key =
-        SignatureKeyPair::new(ciphersuite.signature_algorithm()).unwrap();
+        SignatureKeyPair::new(ciphersuite.signature_algorithm().expect("Unsupported ciphersuite")).unwrap();
     let random_own_signature_key = random_own_signature_key.public();
     let signer = SignatureKeyPair::from_raw(
-        ciphersuite.signature_algorithm(),
+        ciphersuite.signature_algorithm().expect("Unsupported ciphersuite"),
         signature_private_key,
         random_own_signature_key.to_vec(),
     );
@@ -172,10 +172,10 @@ pub fn run_test_vector(
         let credential = BasicCredential::new(b"This is not needed".to_vec());
         let signature_private_key = hex_to_bytes(&test.signature_priv);
         let random_own_signature_key =
-            SignatureKeyPair::new(ciphersuite.signature_algorithm()).unwrap();
+            SignatureKeyPair::new(ciphersuite.signature_algorithm().expect("Unsupported ciphersuite")).unwrap();
         let random_own_signature_key = random_own_signature_key.public();
         let signer = SignatureKeyPair::from_raw(
-            ciphersuite.signature_algorithm(),
+            ciphersuite.signature_algorithm().expect("Unsupported ciphersuite"),
             signature_private_key,
             random_own_signature_key.to_vec(),
         );
@@ -194,7 +194,7 @@ pub fn run_test_vector(
             .unwrap();
 
         let credential = BasicCredential::new("Fake user".into());
-        let signature_keys = SignatureKeyPair::new(ciphersuite.signature_algorithm()).unwrap();
+        let signature_keys = SignatureKeyPair::new(ciphersuite.signature_algorithm().expect("Unsupported ciphersuite")).unwrap();
         let bob_key_package_bundle = KeyPackageBundle::generate(
             provider,
             &signature_keys,

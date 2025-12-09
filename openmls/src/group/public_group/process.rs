@@ -86,7 +86,9 @@ impl PublicGroup {
         )?;
         let signature_public_key = OpenMlsSignaturePublicKey::from_signature_key(
             signature_key,
-            self.ciphersuite().signature_algorithm(),
+            self.ciphersuite()
+                .signature_algorithm()
+                .expect("Unsupported ciphersuite"),
         );
 
         // For commit messages, we need to check if the sender is a member or a

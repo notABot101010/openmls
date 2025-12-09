@@ -220,7 +220,7 @@ impl UpdateProposalIn {
                 let pk = &leaf_node
                     .signature_key()
                     .clone()
-                    .into_signature_public_key_enriched(ciphersuite.signature_algorithm());
+                    .into_signature_public_key_enriched(ciphersuite.signature_algorithm().expect("Unsupported ciphersuite"));
 
                 leaf_node
                     .verify(crypto, pk)

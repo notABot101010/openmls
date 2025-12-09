@@ -220,7 +220,7 @@ fn test_welcome_message() {
     };
 
     // We need a signer
-    let signer = SignatureKeyPair::new(ciphersuite.signature_algorithm()).unwrap();
+    let signer = SignatureKeyPair::new(ciphersuite.signature_algorithm().expect("Unsupported ciphersuite")).unwrap();
 
     let group_info = group_info_tbs
         .sign(&signer)
@@ -234,7 +234,7 @@ fn test_welcome_message() {
     let receiver_key_pair = provider
         .crypto()
         .derive_hpke_keypair(
-            ciphersuite.hpke_config(),
+            ciphersuite,
             Secret::random(ciphersuite, provider.rand())
                 .expect("Not enough randomness.")
                 .as_slice(),

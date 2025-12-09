@@ -217,7 +217,7 @@ mod tests {
     }
 
     fn dummy_secret(rng: &mut impl Rng, ciphersuite: Ciphersuite) -> Secret {
-        Secret::from_slice(&random_vec(rng, ciphersuite.hash_length()))
+        Secret::from_slice(&random_vec(rng, ciphersuite.hash_length().expect("Unsupported ciphersuite")))
     }
 
     fn dummy_index<P: Prefix>(rng: &mut impl Rng) -> Vec<u8> {

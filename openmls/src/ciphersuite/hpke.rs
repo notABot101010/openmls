@@ -148,7 +148,7 @@ fn encrypt_with_label_internal(
     log_crypto!(debug, "* plaintext:   {plaintext:x?}");
 
     let cipher = crypto.hpke_seal(
-        ciphersuite.hpke_config(),
+        ciphersuite,
         public_key,
         &context,
         &[],
@@ -231,7 +231,7 @@ fn decrypt_with_label_internal(
 
     let plaintext = crypto
         .hpke_open(
-            ciphersuite.hpke_config(),
+            ciphersuite,
             ciphertext,
             private_key,
             &context,

@@ -57,9 +57,9 @@ fn ratchet_tree_extension() {
 
     // Create credentials and keys
     let (alice_credential_with_key, alice_signature_keys) =
-        test_utils::new_credential(alice_provider, b"Alice", ciphersuite.signature_algorithm());
+        test_utils::new_credential(alice_provider, b"Alice", ciphersuite.signature_algorithm().expect("Unsupported ciphersuite"));
     let (bob_credential_with_key, bob_signature_keys) =
-        test_utils::new_credential(bob_provider, b"Bob", ciphersuite.signature_algorithm());
+        test_utils::new_credential(bob_provider, b"Bob", ciphersuite.signature_algorithm().expect("Unsupported ciphersuite"));
 
     // Generate KeyPackages
     let bob_key_package_bundle = KeyPackageBundle::generate(
@@ -216,7 +216,7 @@ fn with_group_context_extensions() {
     let extensions = Extensions::single(test_extension.clone());
 
     let alice_credential_with_key_and_signer =
-        generate_credential_with_key("Alice".into(), ciphersuite.signature_algorithm(), provider);
+        generate_credential_with_key("Alice".into(), ciphersuite.signature_algorithm().expect("Unsupported ciphersuite"), provider);
 
     let mls_group_create_config = MlsGroupCreateConfig::builder()
         .with_group_context_extensions(extensions)
@@ -252,7 +252,7 @@ fn wrong_extension_with_group_context_extensions() {
     // - ratchet tree
 
     let alice_credential_with_key_and_signer =
-        generate_credential_with_key("Alice".into(), ciphersuite.signature_algorithm(), provider);
+        generate_credential_with_key("Alice".into(), ciphersuite.signature_algorithm().expect("Unsupported ciphersuite"), provider);
 
     // create an extension that we can check for later
     let test_extension = Extension::ApplicationId(ApplicationIdExtension::new(&[0xca, 0xfe]));
@@ -328,7 +328,7 @@ fn last_resort_extension() {
     // Build a KeyPackage with a last resort extension
     let credential = BasicCredential::new(b"Bob".to_vec());
     let signer =
-        openmls_basic_credential::SignatureKeyPair::new(ciphersuite.signature_algorithm()).unwrap();
+        openmls_basic_credential::SignatureKeyPair::new(ciphersuite.signature_algorithm().expect("Unsupported ciphersuite")).unwrap();
 
     let extensions = Extensions::single(last_resort);
     let capabilities = Capabilities::new(
@@ -368,7 +368,7 @@ fn last_resort_extension() {
 
     let alice_credential_with_key_and_signer = generate_credential_with_key(
         "Alice".into(),
-        ciphersuite.signature_algorithm(),
+        ciphersuite.signature_algorithm().expect("Unsupported ciphersuite"),
         alice_provider,
     );
 

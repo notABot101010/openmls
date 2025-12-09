@@ -18,7 +18,7 @@ fn create_group(
 
     // Generate credentials with keys
     let credential_with_key_and_signer =
-        generate_credential_with_key("Alice".into(), ciphersuite.signature_algorithm(), provider);
+        generate_credential_with_key("Alice".into(), ciphersuite.signature_algorithm().expect("Unsupported ciphersuite"), provider);
 
     // Define the MlsGroup configuration
     let mls_group_config = MlsGroupCreateConfig::builder()
@@ -51,7 +51,7 @@ fn receive_message(
     // Generate credentials with keys
     let bob_credential_with_key_and_signer = generate_credential_with_key(
         "Bob".into(),
-        ciphersuite.signature_algorithm(),
+        ciphersuite.signature_algorithm().expect("Unsupported ciphersuite"),
         bob_provider,
     );
 

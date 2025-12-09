@@ -120,7 +120,7 @@ fn bad_padding() {
 
         let alice_credential_with_keys = generate_credential_with_key(
             b"Alice".to_vec(),
-            ciphersuite.signature_algorithm(),
+            ciphersuite.signature_algorithm().expect("Unsupported ciphersuite"),
             provider,
         );
 
@@ -156,7 +156,7 @@ fn bad_padding() {
 
         let encryption_secret_bytes = provider
             .rand()
-            .random_vec(ciphersuite.hash_length())
+            .random_vec(ciphersuite.hash_length().expect("Unsupported ciphersuite"))
             .unwrap();
 
         let sender_secret_tree = {

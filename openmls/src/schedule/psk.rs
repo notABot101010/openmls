@@ -232,7 +232,7 @@ impl PreSharedKeyId {
         psk: Psk,
     ) -> Result<Self, CryptoError> {
         let psk_nonce = rand
-            .random_vec(ciphersuite.hash_length())
+            .random_vec(ciphersuite.hash_length().expect("Unsupported ciphersuite"))
             .map_err(|_| CryptoError::InsufficientRandomness)?
             .into();
 
@@ -317,7 +317,7 @@ impl PreSharedKeyId {
         // ValSem401
         // https://validation.openmls.tech/#valn0803
         {
-            let expected_nonce_length = ciphersuite.hash_length();
+            let expected_nonce_length = ciphersuite.hash_length().expect("Unsupported ciphersuite");
             let got_nonce_length = self.psk_nonce().len();
 
             if expected_nonce_length != got_nonce_length {
@@ -380,7 +380,7 @@ impl PreSharedKeyId {
             };
 
             {
-                let expected_nonce_length = ciphersuite.hash_length();
+                let expected_nonce_length = ciphersuite.hash_length().expect("Unsupported ciphersuite");
                 let got_nonce_length = id.psk_nonce().len();
 
                 if expected_nonce_length != got_nonce_length {
@@ -459,12 +459,14 @@ impl PskSecret {
         // Following comments are from `draft-ietf-mls-protocol-19`.
         //
         // psk_secret_[0] = 0
-        let mut psk_secret = Secret::zero(ciphersuite);
+        let mut psk_secret =
+            Secret::zero(ciphersuite).map_err(LibraryError::unexpected_crypto_error)?;
 
         for (index, (psk_id, psk)) in psks.into_iter().enumerate() {
             // psk_extracted_[i] = KDF.Extract(0, psk_[i])
             let psk_extracted = {
-                let zero_secret = Secret::zero(ciphersuite);
+                let zero_secret =
+                    Secret::zero(ciphersuite).map_err(LibraryError::unexpected_crypto_error)?;
                 zero_secret
                     .hkdf_extract(crypto, ciphersuite, &psk)
                     .map_err(LibraryError::unexpected_crypto_error)?
@@ -482,7 +484,7 @@ impl PskSecret {
                         ciphersuite,
                         "derived psk",
                         &psk_label,
-                        ciphersuite.hash_length(),
+                        ciphersuite.hash_length().expect("Unsupported ciphersuite"),
                     )
                     .map_err(LibraryError::unexpected_crypto_error)?
             };

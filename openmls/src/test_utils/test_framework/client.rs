@@ -62,7 +62,7 @@ impl<Provider: OpenMlsProvider> Client<Provider> {
         let keys = SignatureKeyPair::read(
             self.provider.storage(),
             credential_with_key.signature_key.as_slice(),
-            ciphersuite.signature_algorithm(),
+            ciphersuite.signature_algorithm().expect("Unsupported ciphersuite"),
         )
         .unwrap();
 
@@ -94,7 +94,7 @@ impl<Provider: OpenMlsProvider> Client<Provider> {
         let signer = SignatureKeyPair::read(
             self.provider.storage(),
             credential_with_key.signature_key.as_slice(),
-            ciphersuite.signature_algorithm(),
+            ciphersuite.signature_algorithm().expect("Unsupported ciphersuite"),
         )
         .unwrap();
 
@@ -227,7 +227,7 @@ impl<Provider: OpenMlsProvider> Client<Provider> {
         let signer = SignatureKeyPair::read(
             self.provider.storage(),
             signature_pk.as_slice(),
-            group.ciphersuite().signature_algorithm(),
+            group.ciphersuite().signature_algorithm().expect("Unsupported ciphersuite"),
         )
         .unwrap();
         let (msg, welcome_option, group_info) = match action_type {
@@ -279,7 +279,7 @@ impl<Provider: OpenMlsProvider> Client<Provider> {
         let signer = SignatureKeyPair::read(
             self.provider.storage(),
             signature_pk.as_slice(),
-            group.ciphersuite().signature_algorithm(),
+            group.ciphersuite().signature_algorithm().expect("Unsupported ciphersuite"),
         )
         .unwrap();
         let action_results = match action_type {
@@ -335,7 +335,7 @@ impl<Provider: OpenMlsProvider> Client<Provider> {
         let signer = SignatureKeyPair::read(
             self.provider.storage(),
             signature_pk.as_slice(),
-            group.ciphersuite().signature_algorithm(),
+            group.ciphersuite().signature_algorithm().expect("Unsupported ciphersuite"),
         )
         .unwrap();
         let action_results = match action_type {

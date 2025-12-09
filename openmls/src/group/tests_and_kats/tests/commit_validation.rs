@@ -44,19 +44,19 @@ fn validation_test_setup(
     // Generate credentials with keys
     let alice_credential = generate_credential_with_key(
         "Alice".into(),
-        ciphersuite.signature_algorithm(),
+        ciphersuite.signature_algorithm().expect("Unsupported ciphersuite"),
         alice_provider,
     );
 
     let bob_credential = generate_credential_with_key(
         "Bob".into(),
-        ciphersuite.signature_algorithm(),
+        ciphersuite.signature_algorithm().expect("Unsupported ciphersuite"),
         bob_provider,
     );
 
     let charlie_credential = generate_credential_with_key(
         "Charlie".into(),
-        ciphersuite.signature_algorithm(),
+        ciphersuite.signature_algorithm().expect("Unsupported ciphersuite"),
         charlie_provider,
     );
 
@@ -313,7 +313,7 @@ fn test_valsem201() {
     let add_proposal = || {
         let dave_credential = generate_credential_with_key(
             "Dave".into(),
-            ciphersuite.signature_algorithm(),
+            ciphersuite.signature_algorithm().expect("Unsupported ciphersuite"),
             dave_provider,
         );
         let dave_key_package = generate_key_package(
@@ -332,7 +332,7 @@ fn test_valsem201() {
         let secret = Secret::random(ciphersuite, alice_provider.rand()).unwrap();
         let rand = alice_provider
             .rand()
-            .random_vec(ciphersuite.hash_length())
+            .random_vec(ciphersuite.hash_length().expect("Unsupported ciphersuite"))
             .unwrap();
         let psk_id = PreSharedKeyId::new(
             ciphersuite,

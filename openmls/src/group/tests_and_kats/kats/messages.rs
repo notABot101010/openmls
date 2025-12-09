@@ -217,7 +217,7 @@ pub fn generate_test_vector(ciphersuite: Ciphersuite) -> MessagesTestVector {
             Psk::External(ExternalPsk::new(
                 provider
                     .rand()
-                    .random_vec(ciphersuite.hash_length())
+                    .random_vec(ciphersuite.hash_length().expect("Unsupported ciphersuite"))
                     .unwrap(),
             )),
         )

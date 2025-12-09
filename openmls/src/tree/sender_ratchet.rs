@@ -133,7 +133,7 @@ impl RatchetSecret {
             &self.secret,
             "nonce",
             self.generation,
-            ciphersuite.aead_nonce_length(),
+            ciphersuite.aead_nonce_length().expect("Unsupported ciphersuite"),
             crypto,
         )?;
         let key = derive_tree_secret(
@@ -141,7 +141,7 @@ impl RatchetSecret {
             &self.secret,
             "key",
             self.generation,
-            ciphersuite.aead_key_length(),
+            ciphersuite.aead_key_length().expect("Unsupported ciphersuite"),
             crypto,
         )?;
         self.secret = derive_tree_secret(
@@ -149,7 +149,7 @@ impl RatchetSecret {
             &self.secret,
             "secret",
             self.generation,
-            ciphersuite.hash_length(),
+            ciphersuite.hash_length().expect("Unsupported ciphersuite"),
             crypto,
         )?;
         let generation = self.generation;

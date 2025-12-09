@@ -80,14 +80,14 @@ pub(crate) fn derive_child_secrets(
         ciphersuite,
         "tree",
         b"left",
-        ciphersuite.hash_length(),
+        ciphersuite.hash_length().expect("Unsupported ciphersuite"),
     )?;
     let right_child = parent_secret.kdf_expand_label(
         crypto,
         ciphersuite,
         "tree",
         b"right",
-        ciphersuite.hash_length(),
+        ciphersuite.hash_length().expect("Unsupported ciphersuite"),
     )?;
     Ok((left_child, right_child))
 }
@@ -260,14 +260,14 @@ impl SecretTree {
             ciphersuite,
             "handshake",
             b"",
-            ciphersuite.hash_length(),
+            ciphersuite.hash_length().expect("Unsupported ciphersuite"),
         )?;
         let application_ratchet_secret = node_secret.kdf_expand_label(
             crypto,
             ciphersuite,
             "application",
             b"",
-            ciphersuite.hash_length(),
+            ciphersuite.hash_length().expect("Unsupported ciphersuite"),
         )?;
 
         log_crypto!(

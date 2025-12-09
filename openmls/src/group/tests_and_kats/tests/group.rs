@@ -654,23 +654,23 @@ fn decrypt_after_leaf_index_reuse() {
     let (alice_credential, alice_signature_keys) = crate::credentials::test_utils::new_credential(
         alice_provider,
         b"Alice",
-        ciphersuite.signature_algorithm(),
+        ciphersuite.signature_algorithm().expect("Unsupported ciphersuite"),
     );
     let (bob_credential, bob_signature_keys) = crate::credentials::test_utils::new_credential(
         bob_provider,
         b"Bob",
-        ciphersuite.signature_algorithm(),
+        ciphersuite.signature_algorithm().expect("Unsupported ciphersuite"),
     );
     let (charlie_credential, charlie_signature_keys) =
         crate::credentials::test_utils::new_credential(
             charlie_provider,
             b"charlie",
-            ciphersuite.signature_algorithm(),
+            ciphersuite.signature_algorithm().expect("Unsupported ciphersuite"),
         );
     let (dora_credential, dora_signature_keys) = crate::credentials::test_utils::new_credential(
         dora_provider,
         b"dora",
-        ciphersuite.signature_algorithm(),
+        ciphersuite.signature_algorithm().expect("Unsupported ciphersuite"),
     );
 
     // Alice creates a group

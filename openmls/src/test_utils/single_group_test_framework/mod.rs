@@ -105,7 +105,7 @@ impl<Provider: OpenMlsProvider> CorePartyState<Provider> {
     ) -> PreGroupPartyState<'_, Provider> {
         let (credential_with_key, signer) = generate_credential(
             self.name.into(),
-            ciphersuite.signature_algorithm(),
+            ciphersuite.signature_algorithm().expect("Unsupported ciphersuite"),
             &self.provider,
         );
 
@@ -140,13 +140,12 @@ impl<Provider: OpenMlsProvider> MemberState<'_, Provider> {
             .party
             .key_package_bundle
             .key_package()
-            .ciphersuite()
-            .into();
+            .ciphersuite();
 
         SignatureKeyPair::read(
             self.party.core_state.provider.storage(),
             self.party.signer.public(),
-            ciphersuite,
+            ciphersuite.signature_algorithm().expect("Unsupported ciphersuite"),
         )
     }
     /// Get the `GroupStorageState` for this group

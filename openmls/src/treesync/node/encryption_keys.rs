@@ -213,7 +213,7 @@ impl EncryptionKeyPair {
         let ikm =
             Secret::random(ciphersuite, rand).map_err(LibraryError::unexpected_crypto_error)?;
         Ok(crypto
-            .derive_hpke_keypair(ciphersuite.hpke_config(), ikm.as_slice())
+            .derive_hpke_keypair(ciphersuite, ikm.as_slice())
             .map_err(LibraryError::unexpected_crypto_error)?
             .into())
     }

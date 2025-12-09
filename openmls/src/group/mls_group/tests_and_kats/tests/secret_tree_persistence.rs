@@ -19,10 +19,10 @@ fn test_secret_tree_persistence() {
 
     // Generate credentials with keys
     let (alice_credential, alice_signer) =
-        new_credential(alice_provider, b"Alice", ciphersuite.signature_algorithm());
+        new_credential(alice_provider, b"Alice", ciphersuite.signature_algorithm().expect("Unsupported ciphersuite"));
 
     let (bob_credential, bob_signer) =
-        new_credential(bob_provider, b"Bob", ciphersuite.signature_algorithm());
+        new_credential(bob_provider, b"Bob", ciphersuite.signature_algorithm().expect("Unsupported ciphersuite"));
 
     // Generate KeyPackage for Bob
     let bob_key_package = KeyPackage::builder()

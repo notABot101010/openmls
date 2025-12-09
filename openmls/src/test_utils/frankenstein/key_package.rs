@@ -144,14 +144,14 @@ fn test_franken_key_package() {
 
     let (credential, signer) = {
         let credential = BasicCredential::new(b"test identity".to_vec());
-        let signature_keys = SignatureKeyPair::new(ciphersuite.signature_algorithm()).unwrap();
+        let signature_keys = SignatureKeyPair::new(ciphersuite.signature_algorithm().expect("Unsupported ciphersuite")).unwrap();
         signature_keys.store(provider.storage()).unwrap();
 
         (credential, signature_keys)
     };
     let signature_key = OpenMlsSignaturePublicKey::new(
         signer.to_public_vec().into(),
-        ciphersuite.signature_algorithm(),
+        ciphersuite.signature_algorithm().expect("Unsupported ciphersuite"),
     )
     .unwrap();
 

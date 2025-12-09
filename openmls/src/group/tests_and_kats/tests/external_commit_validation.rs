@@ -272,7 +272,7 @@ fn test_valsem242() {
             let charlie_provider = &Provider::default();
             let charlie_credential = generate_credential_with_key(
                 "Charlie".into(),
-                ciphersuite.signature_algorithm(),
+                ciphersuite.signature_algorithm().expect("Unsupported ciphersuite"),
                 charlie_provider,
             );
             let charlie_key_package = generate_key_package(
@@ -542,7 +542,7 @@ fn test_valsem246() {
         // and then re-signing the message with his original credential.
         let bob_new_credential = generate_credential_with_key(
             "Bob".into(),
-            ciphersuite.signature_algorithm(),
+            ciphersuite.signature_algorithm().expect("Unsupported ciphersuite"),
             bob_provider,
         );
 
@@ -622,7 +622,7 @@ fn test_valsem246() {
             alice_provider.crypto(),
             &OpenMlsSignaturePublicKey::from_signature_key(
                 bob_credential.credential_with_key.signature_key,
-                ciphersuite.signature_algorithm(),
+                ciphersuite.signature_algorithm().expect("Unsupported ciphersuite"),
             ),
         );
     assert!(verification_result.is_ok());
@@ -692,13 +692,13 @@ mod utils {
         // Generate credentials with keys
         let alice_credential = generate_credential_with_key(
             "Alice".into(),
-            ciphersuite.signature_algorithm(),
+            ciphersuite.signature_algorithm().expect("Unsupported ciphersuite"),
             alice_provider,
         );
 
         let bob_credential = generate_credential_with_key(
             "Bob".into(),
-            ciphersuite.signature_algorithm(),
+            ciphersuite.signature_algorithm().expect("Unsupported ciphersuite"),
             bob_provider,
         );
 

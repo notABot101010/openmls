@@ -25,7 +25,7 @@ use crate::{
 fn codec_plaintext() {
     let provider = &Provider::default();
     let (_credential, signature_keys) =
-        test_utils::new_credential(provider, b"Creator", ciphersuite.signature_algorithm());
+        test_utils::new_credential(provider, b"Creator", ciphersuite.signature_algorithm().expect("Unsupported ciphersuite"));
     let sender = Sender::build_member(LeafNodeIndex::new(987543210));
     let group_context = GroupContext::new(
         ciphersuite,
@@ -78,7 +78,7 @@ fn codec_plaintext() {
 fn codec_ciphertext() {
     let provider = &Provider::default();
     let (_credential, signature_keys) =
-        test_utils::new_credential(provider, b"Creator", ciphersuite.signature_algorithm());
+        test_utils::new_credential(provider, b"Creator", ciphersuite.signature_algorithm().expect("Unsupported ciphersuite"));
     let sender = Sender::build_member(LeafNodeIndex::new(0));
     let group_context = GroupContext::new(
         ciphersuite,
@@ -109,7 +109,7 @@ fn codec_ciphertext() {
         ciphersuite,
         provider.crypto(),
         &JoinerSecret::random(ciphersuite, provider.rand()),
-        PskSecret::from(Secret::zero(ciphersuite)),
+        PskSecret::from(Secret::zero(ciphersuite).unwrap()),
     )
     .expect("Could not create KeySchedule.");
 
@@ -161,7 +161,7 @@ fn wire_format_checks() {
         MessageSecrets::random(ciphersuite, provider.rand(), LeafNodeIndex::new(0));
     let encryption_secret_bytes = provider
         .rand()
-        .random_vec(ciphersuite.hash_length())
+        .random_vec(ciphersuite.hash_length().expect("Unsupported ciphersuite"))
         .expect("An unexpected error occurred.");
     let sender_encryption_secret = EncryptionSecret::from_slice(&encryption_secret_bytes[..]);
     let receiver_encryption_secret = EncryptionSecret::from_slice(&encryption_secret_bytes[..]);
@@ -224,7 +224,7 @@ fn wire_format_checks() {
         create_content(ciphersuite, WireFormat::PublicMessage, provider);
     let pk = OpenMlsSignaturePublicKey::new(
         signature_keys.public().into(),
-        ciphersuite.signature_algorithm(),
+        ciphersuite.signature_algorithm().expect("Unsupported ciphersuite"),
     )
     .unwrap();
 
@@ -290,7 +290,7 @@ fn create_content(
     provider: &impl OpenMlsProvider,
 ) -> (AuthenticatedContent, CredentialWithKey, SignatureKeyPair) {
     let (credential, signature_keys) =
-        test_utils::new_credential(provider, b"Creator", ciphersuite.signature_algorithm());
+        test_utils::new_credential(provider, b"Creator", ciphersuite.signature_algorithm().expect("Unsupported ciphersuite"));
     let sender = Sender::build_member(LeafNodeIndex::new(0));
     let group_context = GroupContext::new(
         ciphersuite,
@@ -323,7 +323,7 @@ fn create_content(
 fn membership_tag() {
     let provider = &Provider::default();
     let (_credential, signature_keys) =
-        test_utils::new_credential(provider, b"Creator", ciphersuite.signature_algorithm());
+        test_utils::new_credential(provider, b"Creator", ciphersuite.signature_algorithm().expect("Unsupported ciphersuite"));
     let group_context = GroupContext::new(
         ciphersuite,
         GroupId::random(provider.rand()),

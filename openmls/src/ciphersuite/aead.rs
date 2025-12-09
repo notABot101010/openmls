@@ -5,12 +5,12 @@ use super::*;
 /// The default NONCE size in bytes.
 pub(crate) const NONCE_BYTES: usize = 12;
 
-/// AEAD keys holding the plain key value and the AEAD algorithm type.
+/// AEAD keys holding the plain key value and the ciphersuite.
 #[derive(Serialize, Deserialize)]
 #[cfg_attr(any(feature = "test-utils", test), derive(Clone, PartialEq, Eq))]
 #[cfg_attr(feature = "crypto-debug", derive(Debug))]
 pub struct AeadKey {
-    aead_mode: AeadType,
+    ciphersuite: Ciphersuite,
     value: SecretVLBytes,
 }
 
@@ -18,7 +18,7 @@ pub struct AeadKey {
 impl core::fmt::Debug for AeadKey {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         f.debug_struct("AeadKey")
-            .field("aead_mode", &self.aead_mode)
+            .field("ciphersuite", &self.ciphersuite)
             .field("value", &"***")
             .finish()
     }
@@ -42,7 +42,7 @@ impl AeadKey {
     pub(crate) fn from_secret(secret: Secret, ciphersuite: Ciphersuite) -> Self {
         log::trace!("AeadKey::from_secret with {ciphersuite}");
         AeadKey {
-            aead_mode: ciphersuite.aead_algorithm(),
+            ciphersuite,
             value: secret.value,
         }
     }
@@ -51,8 +51,8 @@ impl AeadKey {
     /// Generate a random AEAD Key
     pub(crate) fn random(ciphersuite: Ciphersuite, rng: &impl OpenMlsRand) -> Self {
         AeadKey {
-            aead_mode: ciphersuite.aead_algorithm(),
-            value: aead_key_gen(ciphersuite.aead_algorithm(), rng),
+            ciphersuite,
+            value: aead_key_gen(ciphersuite, rng),
         }
     }
 
@@ -71,7 +71,7 @@ impl AeadKey {
         nonce: &AeadNonce,
     ) -> Result<Vec<u8>, CryptoError> {
         crypto
-            .aead_encrypt(self.aead_mode, self.value.as_slice(), msg, &nonce.0, aad)
+            .aead_encrypt(self.ciphersuite, self.value.as_slice(), msg, &nonce.0, aad)
             .map_err(|_| CryptoError::CryptoLibraryError)
     }
 
@@ -85,7 +85,7 @@ impl AeadKey {
     ) -> Result<Vec<u8>, CryptoError> {
         crypto
             .aead_decrypt(
-                self.aead_mode,
+                self.ciphersuite,
                 self.value.as_slice(),
                 ciphertext,
                 &nonce.0,
@@ -137,19 +137,25 @@ impl AeadNonce {
 
 #[cfg(test)]
 pub(crate) fn aead_key_gen(
-    alg: openmls_traits::types::AeadType,
+    ciphersuite: Ciphersuite,
     rng: &impl OpenMlsRand,
 ) -> SecretVLBytes {
-    match alg {
-        openmls_traits::types::AeadType::Aes128Gcm => rng
+    match ciphersuite {
+        Ciphersuite::MLS_128_DHKEMX25519_AES128GCM_SHA256_Ed25519
+        | Ciphersuite::MLS_128_DHKEMP256_AES128GCM_SHA256_P256 => rng
             .random_vec(16)
             .expect("An unexpected error occurred.")
             .into(),
-        openmls_traits::types::AeadType::Aes256Gcm
-        | openmls_traits::types::AeadType::ChaCha20Poly1305 => rng
+        Ciphersuite::MLS_128_DHKEMX25519_CHACHA20POLY1305_SHA256_Ed25519
+        | Ciphersuite::MLS_256_DHKEMX448_AES256GCM_SHA512_Ed448
+        | Ciphersuite::MLS_256_DHKEMP521_AES256GCM_SHA512_P521
+        | Ciphersuite::MLS_256_DHKEMX448_CHACHA20POLY1305_SHA512_Ed448
+        | Ciphersuite::MLS_256_DHKEMP384_AES256GCM_SHA384_P384
+        | Ciphersuite::MLS_256_XWING_CHACHA20POLY1305_SHA256_Ed25519 => rng
             .random_vec(32)
             .expect("An unexpected error occurred.")
             .into(),
+        Ciphersuite::Custom(_) => panic!("Custom ciphersuites not supported in tests"),
     }
 }
 

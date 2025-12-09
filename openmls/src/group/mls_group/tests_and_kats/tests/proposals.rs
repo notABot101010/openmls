@@ -527,9 +527,9 @@ fn self_remove_proposals() {
 
     // Create credentials and keys
     let (alice_credential, alice_signer) =
-        test_utils::new_credential(alice_provider, b"Alice", ciphersuite.signature_algorithm());
+        test_utils::new_credential(alice_provider, b"Alice", ciphersuite.signature_algorithm().expect("Unsupported ciphersuite"));
     let (bob_credential, bob_signer) =
-        test_utils::new_credential(bob_provider, b"Bob", ciphersuite.signature_algorithm());
+        test_utils::new_credential(bob_provider, b"Bob", ciphersuite.signature_algorithm().expect("Unsupported ciphersuite"));
 
     // Add SelfRemove to capabilities
     let capabilities = Capabilities::new(
@@ -756,7 +756,7 @@ fn remove_and_update_processing() {
 fn self_remove_proposals_always_public() {
     let alice_provider = &Provider::default();
     let (alice_credential, alice_signer) =
-        test_utils::new_credential(alice_provider, b"Alice", ciphersuite.signature_algorithm());
+        test_utils::new_credential(alice_provider, b"Alice", ciphersuite.signature_algorithm().expect("Unsupported ciphersuite"));
 
     // Alice creates a group
     let mut alice_group = MlsGroup::builder()
@@ -823,13 +823,13 @@ fn app_ephemeral_proposals_multiple() {
     // Generate credentials with keys
     let (alice_credential, alice_signer) = generate_credential(
         b"Alice".to_vec(),
-        ciphersuite.signature_algorithm(),
+        ciphersuite.signature_algorithm().expect("Unsupported ciphersuite"),
         alice_provider,
     );
 
     let (bob_credential, bob_signer) = generate_credential(
         b"Bob".to_vec(),
-        ciphersuite.signature_algorithm(),
+        ciphersuite.signature_algorithm().expect("Unsupported ciphersuite"),
         bob_provider,
     );
 

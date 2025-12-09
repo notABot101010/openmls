@@ -22,7 +22,7 @@ fn external_commit_builder() {
         signer: alice_signer,
     } = generate_credential_with_key(
         b"alice".into(),
-        ciphersuite.signature_algorithm(),
+        ciphersuite.signature_algorithm().expect("Unsupported ciphersuite"),
         alice_provider,
     );
 
@@ -31,7 +31,7 @@ fn external_commit_builder() {
         signer: bob_signer,
     } = generate_credential_with_key(
         b"bob".into(),
-        ciphersuite.signature_algorithm(),
+        ciphersuite.signature_algorithm().expect("Unsupported ciphersuite"),
         bob_provider,
     );
 
@@ -40,7 +40,7 @@ fn external_commit_builder() {
         signer: charlie_signer,
     } = generate_credential_with_key(
         b"charlie".into(),
-        ciphersuite.signature_algorithm(),
+        ciphersuite.signature_algorithm().expect("Unsupported ciphersuite"),
         charlie_provider,
     );
 

@@ -162,7 +162,7 @@ pub fn generate_test_vector(ciphersuite: Ciphersuite) -> TranscriptTestVector {
 
     let confirmation_key = ConfirmationKey::random(ciphersuite, provider.rand());
 
-    let interim_transcript_hash_before = randombytes(ciphersuite.hash_length());
+    let interim_transcript_hash_before = randombytes(ciphersuite.hash_length().expect("Unsupported ciphersuite"));
 
     // Note: This does not have a valid `confirmation_tag` for now and is only used to
     // calculate `confirmed_transcript_hash_after`.
@@ -181,12 +181,12 @@ pub fn generate_test_vector(ciphersuite: Ciphersuite) -> TranscriptTestVector {
         let group_context = {
             let tree_hash_before = provider
                 .rand()
-                .random_vec(ciphersuite.hash_length())
+                .random_vec(ciphersuite.hash_length().expect("Unsupported ciphersuite"))
                 .unwrap();
 
             let confirmed_transcript_hash_before = provider
                 .rand()
-                .random_vec(ciphersuite.hash_length())
+                .random_vec(ciphersuite.hash_length().expect("Unsupported ciphersuite"))
                 .unwrap();
 
             GroupContext::new(
@@ -202,7 +202,7 @@ pub fn generate_test_vector(ciphersuite: Ciphersuite) -> TranscriptTestVector {
         let signer = {
             let credential_with_key_and_signer = generate_credential_with_key(
                 b"Alice".to_vec(),
-                ciphersuite.signature_algorithm(),
+                ciphersuite.signature_algorithm().expect("Unsupported ciphersuite"),
                 &provider,
             );
 

@@ -195,7 +195,7 @@ impl ConfirmedTranscriptHashInput<'_> {
 
         crypto
             .hash(
-                ciphersuite.hash_algorithm(),
+                ciphersuite,
                 &[interim_transcript_hash, &serialized].concat(),
             )
             .map_err(LibraryError::unexpected_crypto_error)
@@ -244,7 +244,7 @@ impl InterimTranscriptHashInput<'_> {
 
         crypto
             .hash(
-                ciphersuite.hash_algorithm(),
+                ciphersuite,
                 &[confirmed_transcript_hash, &serialized].concat(),
             )
             .map_err(LibraryError::unexpected_crypto_error)

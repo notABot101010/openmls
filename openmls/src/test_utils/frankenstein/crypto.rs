@@ -13,7 +13,7 @@ pub fn compute_membership_tag(
     let serialized_auth_content_tbm = &auth_content_tbm.tls_serialize_detached().unwrap();
     crypto
         .hmac(
-            ciphersuite.hash_algorithm(),
+            ciphersuite,
             membership_key,              // Extract salt is HMAC key
             serialized_auth_content_tbm, // Extract ikm is HMAC message
         )

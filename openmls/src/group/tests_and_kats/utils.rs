@@ -78,7 +78,7 @@ pub(crate) fn setup(
             // Create a credential_with_key for the given ciphersuite.
             let credentia_with_key_and_signer = generate_credential_with_key(
                 client.name.as_bytes().to_vec(),
-                ciphersuite.signature_algorithm(),
+                ciphersuite.signature_algorithm().expect("Unsupported ciphersuite"),
                 provider,
             );
             // Create a number of key packages.

@@ -36,7 +36,7 @@ fn that_commit_secret_is_derived_from_end_of_update_path_not_root() {
     ) -> Member<Provider> {
         let credential_with_key_and_signer = generate_credential_with_key(
             name.clone(),
-            ciphersuite.signature_algorithm(),
+            ciphersuite.signature_algorithm().expect("Unsupported ciphersuite"),
             &provider,
         );
         let key_package = KeyPackage::builder()

@@ -342,12 +342,15 @@ impl PathSecret {
         crypto: &impl OpenMlsCrypto,
         ciphersuite: Ciphersuite,
     ) -> Result<EncryptionKeyPair, LibraryError> {
+        let hash_length = ciphersuite
+            .hash_length()
+            .expect("Unsupported ciphersuite");
         let node_secret = self
             .path_secret
-            .kdf_expand_label(crypto, ciphersuite, "node", &[], ciphersuite.hash_length())
+            .kdf_expand_label(crypto, ciphersuite, "node", &[], hash_length)
             .map_err(LibraryError::unexpected_crypto_error)?;
         let HpkeKeyPair { public, private } = crypto
-            .derive_hpke_keypair(ciphersuite.hpke_config(), node_secret.as_slice())
+            .derive_hpke_keypair(ciphersuite, node_secret.as_slice())
             .map_err(LibraryError::unexpected_crypto_error)?;
 
         Ok((HpkePublicKey::from(public), private).into())
@@ -361,7 +364,7 @@ impl PathSecret {
     ) -> Result<Self, LibraryError> {
         let path_secret = self
             .path_secret
-            .kdf_expand_label(crypto, ciphersuite, "path", &[], ciphersuite.hash_length())
+            .kdf_expand_label(crypto, ciphersuite, "path", &[], ciphersuite.hash_length().expect("Unsupported ciphersuite"))
             .map_err(LibraryError::unexpected_crypto_error)?;
         Ok(Self { path_secret })
     }
@@ -497,7 +500,7 @@ impl GroupSecrets {
             ciphersuite,
             rng,
             Psk::External(ExternalPsk::new(
-                rng.random_vec(ciphersuite.hash_length())
+                rng.random_vec(ciphersuite.hash_length().expect("Unsupported ciphersuite"))
                     .expect("Not enough randomness."),
             )),
         )

@@ -231,10 +231,10 @@ impl From<PathSecret> for CommitSecret {
 impl CommitSecret {
     /// Create a CommitSecret consisting of an all-zero string of length
     /// `hash_length`.
-    pub(crate) fn zero_secret(ciphersuite: Ciphersuite) -> Self {
-        CommitSecret {
-            secret: Secret::zero(ciphersuite),
-        }
+    pub(crate) fn zero_secret(ciphersuite: Ciphersuite) -> Result<Self, CryptoError> {
+        Ok(CommitSecret {
+            secret: Secret::zero(ciphersuite)?,
+        })
     }
 
     #[cfg(any(feature = "test-utils", test))]
@@ -306,11 +306,11 @@ impl InitSecret {
         let ciphersuite = group_context.ciphersuite();
         let version = group_context.protocol_version();
         let (kem_output, raw_init_secret) = crypto.hpke_setup_sender_and_export(
-            ciphersuite.hpke_config(),
+            ciphersuite,
             external_pub,
             &[],
             hpke_info_from_version(version).as_bytes(),
-            ciphersuite.hash_length(),
+            ciphersuite.hash_length().expect("Unsupported ciphersuite"),
         )?;
         Ok((
             InitSecret {
@@ -330,12 +330,12 @@ impl InitSecret {
     ) -> Result<Self, LibraryError> {
         let raw_init_secret = crypto
             .hpke_setup_receiver_and_export(
-                ciphersuite.hpke_config(),
+                ciphersuite,
                 kem_output,
                 external_priv,
                 &[],
                 hpke_info_from_version(version).as_bytes(),
-                ciphersuite.hash_length(),
+                ciphersuite.hash_length().expect("Unsupported ciphersuite"),
             )
             .map_err(LibraryError::unexpected_crypto_error)?;
         Ok(InitSecret {
@@ -383,7 +383,7 @@ impl JoinerSecret {
             ciphersuite,
             "joiner",
             serialized_group_context,
-            ciphersuite.hash_length(),
+            ciphersuite.hash_length().expect("Unsupported ciphersuite"),
         )?;
         log_crypto!(trace, "Joiner secret: {:x?}", secret);
         Ok(JoinerSecret { secret })
@@ -605,7 +605,7 @@ impl WelcomeSecret {
             ciphersuite,
             "key",
             b"",
-            ciphersuite.aead_key_length(),
+            ciphersuite.aead_key_length().expect("Unsupported ciphersuite"),
         )?;
         Ok(AeadKey::from_secret(aead_secret, ciphersuite))
     }
@@ -621,7 +621,7 @@ impl WelcomeSecret {
             ciphersuite,
             "nonce",
             b"",
-            ciphersuite.aead_nonce_length(),
+            ciphersuite.aead_nonce_length().expect("Unsupported ciphersuite"),
         )?;
         Ok(AeadNonce::from_secret(nonce_secret))
     }
@@ -652,7 +652,7 @@ impl EpochSecret {
             ciphersuite,
             "epoch",
             serialized_group_context,
-            ciphersuite.hash_length(),
+            ciphersuite.hash_length().expect("Unsupported ciphersuite"),
         )?;
         log_crypto!(trace, "Epoch secret: {:x?}", secret);
         Ok(EpochSecret { secret })
@@ -751,7 +751,7 @@ impl ExporterSecret {
         context: &[u8],
         key_length: usize,
     ) -> Result<Vec<u8>, CryptoError> {
-        let context_hash = &crypto.hash(ciphersuite.hash_algorithm(), context)?;
+        let context_hash = &crypto.hash(ciphersuite, context)?;
         Ok(self
             .secret
             .derive_secret(crypto, ciphersuite, label)?
@@ -813,7 +813,7 @@ impl ExternalSecret {
         crypto: &impl OpenMlsCrypto,
         ciphersuite: Ciphersuite,
     ) -> Result<HpkeKeyPair, CryptoError> {
-        crypto.derive_hpke_keypair(ciphersuite.hpke_config(), self.secret.as_slice())
+        crypto.derive_hpke_keypair(ciphersuite, self.secret.as_slice())
     }
 
     #[cfg(any(feature = "test-utils", test))]
@@ -960,7 +960,7 @@ impl MembershipKey {
 
 // Get a ciphertext sample of `hash_length` from the ciphertext.
 fn ciphertext_sample(ciphersuite: Ciphersuite, ciphertext: &[u8]) -> &[u8] {
-    let sample_length = ciphersuite.hash_length();
+    let sample_length = ciphersuite.hash_length().expect("Unsupported ciphersuite");
     log::debug!("Getting ciphertext sample of length {sample_length:?}");
     if ciphertext.len() <= sample_length {
         ciphertext
@@ -1006,7 +1006,7 @@ impl SenderDataSecret {
             ciphersuite,
             "key",
             ciphertext_sample,
-            ciphersuite.aead_key_length(),
+            ciphersuite.aead_key_length().expect("Unsupported ciphersuite"),
         )?;
         Ok(AeadKey::from_secret(secret, ciphersuite))
     }
@@ -1027,7 +1027,7 @@ impl SenderDataSecret {
             ciphersuite,
             "nonce",
             ciphertext_sample,
-            ciphersuite.aead_nonce_length(),
+            ciphersuite.aead_nonce_length().expect("Unsupported ciphersuite"),
         )?;
         Ok(AeadNonce::from_secret(nonce_secret))
     }
@@ -1209,7 +1209,7 @@ impl EpochSecrets {
         init_secret: InitSecret,
     ) -> Result<Self, CryptoError> {
         let epoch_secret = EpochSecret {
-            secret: Secret::zero(ciphersuite),
+            secret: Secret::zero(ciphersuite)?,
         };
         let mut epoch_secrets = Self::new(crypto, ciphersuite, epoch_secret)?;
         epoch_secrets.init_secret = init_secret;
