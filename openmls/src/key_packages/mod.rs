@@ -300,7 +300,7 @@ impl KeyPackage {
             .map_err(LibraryError::unexpected_crypto_error)?;
         let init_key = provider
             .crypto()
-            .derive_hpke_keypair(ciphersuite.hpke_config(), ikm.as_slice())
+            .derive_hpke_keypair(ciphersuite, ikm.as_slice())
             .map_err(|e| {
                 KeyPackageNewError::LibraryError(LibraryError::unexpected_crypto_error(e))
             })?;

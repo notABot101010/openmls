@@ -2470,7 +2470,7 @@ fn failed_groupinfo_decryption() {
     let receiver_key_pair = provider
         .crypto()
         .derive_hpke_keypair(
-            ciphersuite.hpke_config(),
+            ciphersuite,
             Secret::random(ciphersuite, provider.rand())
                 .expect("Not enough randomness.")
                 .as_slice(),

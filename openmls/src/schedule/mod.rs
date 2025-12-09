@@ -306,7 +306,7 @@ impl InitSecret {
         let ciphersuite = group_context.ciphersuite();
         let version = group_context.protocol_version();
         let (kem_output, raw_init_secret) = crypto.hpke_setup_sender_and_export(
-            ciphersuite.hpke_config(),
+            ciphersuite,
             external_pub,
             &[],
             hpke_info_from_version(version).as_bytes(),
@@ -330,7 +330,7 @@ impl InitSecret {
     ) -> Result<Self, LibraryError> {
         let raw_init_secret = crypto
             .hpke_setup_receiver_and_export(
-                ciphersuite.hpke_config(),
+                ciphersuite,
                 kem_output,
                 external_priv,
                 &[],
@@ -751,7 +751,7 @@ impl ExporterSecret {
         context: &[u8],
         key_length: usize,
     ) -> Result<Vec<u8>, CryptoError> {
-        let context_hash = &crypto.hash(ciphersuite.hash_algorithm(), context)?;
+        let context_hash = &crypto.hash(ciphersuite, context)?;
         Ok(self
             .secret
             .derive_secret(crypto, ciphersuite, label)?
@@ -813,7 +813,7 @@ impl ExternalSecret {
         crypto: &impl OpenMlsCrypto,
         ciphersuite: Ciphersuite,
     ) -> Result<HpkeKeyPair, CryptoError> {
-        crypto.derive_hpke_keypair(ciphersuite.hpke_config(), self.secret.as_slice())
+        crypto.derive_hpke_keypair(ciphersuite, self.secret.as_slice())
     }
 
     #[cfg(any(feature = "test-utils", test))]

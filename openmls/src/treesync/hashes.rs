@@ -52,7 +52,7 @@ impl<'a> ParentHashInput<'a> {
             .tls_serialize_detached()
             .map_err(LibraryError::missing_bound_check)?;
         crypto
-            .hash(ciphersuite.hash_algorithm(), &payload)
+            .hash(ciphersuite, &payload)
             .map_err(LibraryError::unexpected_crypto_error)
     }
 }
@@ -130,7 +130,7 @@ impl<'a> TreeHashInput<'a> {
             .tls_serialize_detached()
             .map_err(LibraryError::missing_bound_check)?;
         crypto
-            .hash(ciphersuite.hash_algorithm(), &payload)
+            .hash(ciphersuite, &payload)
             .map_err(LibraryError::unexpected_crypto_error)
     }
 }
