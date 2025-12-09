@@ -9,7 +9,7 @@ use std::fmt::Debug;
 use openmls_traits::{
     signatures::{Signer, SignerError},
     storage::{self, StorageProvider, CURRENT_VERSION},
-    types::{CryptoError, SignatureScheme},
+    types::{Ciphersuite, CryptoError},
 };
 
 use p256::ecdsa::{signature::Signer as P256Signer, Signature, SigningKey};
@@ -21,7 +21,7 @@ use tls_codec::{TlsDeserialize, TlsDeserializeBytes, TlsSerialize, TlsSize};
 /// A signature key pair for the basic credential.
 ///
 /// This can be used as keys to implement the MLS basic credential. It is a simple
-/// private and public key pair with corresponding signature scheme.
+/// private and public key pair with corresponding ciphersuite.
 #[derive(
     TlsSerialize, TlsSize, TlsDeserialize, TlsDeserializeBytes, serde::Serialize, serde::Deserialize,
 )]
@@ -29,7 +29,7 @@ use tls_codec::{TlsDeserialize, TlsDeserializeBytes, TlsSerialize, TlsSize};
 pub struct SignatureKeyPair {
     private: Vec<u8>,
     public: Vec<u8>,
-    signature_scheme: SignatureScheme,
+    ciphersuite: Ciphersuite,
 }
 
 impl Debug for SignatureKeyPair {
@@ -37,21 +37,27 @@ impl Debug for SignatureKeyPair {
         f.debug_struct("SignatureKeyPair")
             .field("private", &"***".to_string())
             .field("public", &self.public)
-            .field("signature_scheme", &self.signature_scheme)
+            .field("ciphersuite", &self.ciphersuite)
             .finish()
     }
 }
 
 impl Signer for SignatureKeyPair {
     fn sign(&self, payload: &[u8]) -> Result<Vec<u8>, SignerError> {
-        match self.signature_scheme {
-            SignatureScheme::ECDSA_SECP256R1_SHA256 => {
+        match self.ciphersuite {
+            Ciphersuite::MLS_128_DHKEMP256_AES128GCM_SHA256_P256
+            | Ciphersuite::MLS_256_DHKEMP384_AES256GCM_SHA384_P384
+            | Ciphersuite::MLS_256_DHKEMP521_AES256GCM_SHA512_P521 => {
                 let k = SigningKey::from_bytes(self.private.as_slice().into())
                     .map_err(|_| SignerError::SigningError)?;
                 let signature: Signature = k.sign(payload);
                 Ok(signature.to_der().to_bytes().into())
             }
-            SignatureScheme::ED25519 => {
+            Ciphersuite::MLS_128_DHKEMX25519_AES128GCM_SHA256_Ed25519
+            | Ciphersuite::MLS_128_DHKEMX25519_CHACHA20POLY1305_SHA256_Ed25519
+            | Ciphersuite::MLS_256_DHKEMX448_AES256GCM_SHA512_Ed448
+            | Ciphersuite::MLS_256_DHKEMX448_CHACHA20POLY1305_SHA512_Ed448
+            | Ciphersuite::MLS_256_XWING_CHACHA20POLY1305_SHA256_Ed25519 => {
                 let k = ed25519_dalek::SigningKey::try_from(self.private.as_slice())
                     .map_err(|_| SignerError::SigningError)?;
                 let signature = k.sign(payload);
@@ -61,58 +67,64 @@ impl Signer for SignatureKeyPair {
         }
     }
 
-    fn signature_scheme(&self) -> SignatureScheme {
-        self.signature_scheme
+    fn ciphersuite(&self) -> Ciphersuite {
+        self.ciphersuite
     }
 }
 
 /// Compute the ID for a [`Signature`] in the key store.
-fn id(public_key: &[u8], signature_scheme: SignatureScheme) -> Vec<u8> {
+fn id(public_key: &[u8], ciphersuite: Ciphersuite) -> Vec<u8> {
     const LABEL: &[u8; 22] = b"RustCryptoSignatureKey";
     let mut id = public_key.to_vec();
     id.extend_from_slice(LABEL);
-    let signature_scheme = (signature_scheme as u16).to_be_bytes();
-    id.extend_from_slice(&signature_scheme);
+    let ciphersuite_val = u16::from(ciphersuite).to_be_bytes();
+    id.extend_from_slice(&ciphersuite_val);
     id
 }
 
 impl SignatureKeyPair {
-    /// Generates a fresh signature keypair using the [`SignatureScheme`].
-    pub fn new(signature_scheme: SignatureScheme) -> Result<Self, CryptoError> {
-        let (private, public) = match signature_scheme {
-            SignatureScheme::ECDSA_SECP256R1_SHA256 => {
+    /// Generates a fresh signature keypair using the ciphersuite.
+    pub fn new(ciphersuite: Ciphersuite) -> Result<Self, CryptoError> {
+        let (private, public) = match ciphersuite {
+            Ciphersuite::MLS_128_DHKEMP256_AES128GCM_SHA256_P256
+            | Ciphersuite::MLS_256_DHKEMP384_AES256GCM_SHA384_P384
+            | Ciphersuite::MLS_256_DHKEMP521_AES256GCM_SHA512_P521 => {
                 let k = SigningKey::random(&mut OsRng);
                 let pk = k.verifying_key().to_encoded_point(false).as_bytes().into();
                 #[allow(deprecated)]
                 (k.to_bytes().as_slice().into(), pk)
             }
-            SignatureScheme::ED25519 => {
+            Ciphersuite::MLS_128_DHKEMX25519_AES128GCM_SHA256_Ed25519
+            | Ciphersuite::MLS_128_DHKEMX25519_CHACHA20POLY1305_SHA256_Ed25519
+            | Ciphersuite::MLS_256_DHKEMX448_AES256GCM_SHA512_Ed448
+            | Ciphersuite::MLS_256_DHKEMX448_CHACHA20POLY1305_SHA512_Ed448
+            | Ciphersuite::MLS_256_XWING_CHACHA20POLY1305_SHA256_Ed25519 => {
                 let sk = ed25519_dalek::SigningKey::generate(&mut OsRng);
                 let pk = sk.verifying_key().to_bytes().into();
                 (sk.to_bytes().into(), pk)
             }
-            _ => return Err(CryptoError::UnsupportedSignatureScheme),
+            _ => return Err(CryptoError::UnsupportedCiphersuite),
         };
 
         Ok(Self {
             private,
             public,
-            signature_scheme,
+            ciphersuite,
         })
     }
 
     /// Create a new signature key pair from the raw keys.
-    pub fn from_raw(signature_scheme: SignatureScheme, private: Vec<u8>, public: Vec<u8>) -> Self {
+    pub fn from_raw(ciphersuite: Ciphersuite, private: Vec<u8>, public: Vec<u8>) -> Self {
         Self {
             private,
             public,
-            signature_scheme,
+            ciphersuite,
         }
     }
 
     pub fn id(&self) -> StorageId {
         StorageId {
-            value: id(&self.public, self.signature_scheme),
+            value: id(&self.public, self.ciphersuite),
         }
     }
 
@@ -128,11 +140,11 @@ impl SignatureKeyPair {
     pub fn read(
         store: &impl StorageProvider<CURRENT_VERSION>,
         public_key: &[u8],
-        signature_scheme: SignatureScheme,
+        ciphersuite: Ciphersuite,
     ) -> Option<Self> {
         store
             .signature_key_pair(&StorageId {
-                value: id(public_key, signature_scheme),
+                value: id(public_key, ciphersuite),
             })
             .ok()
             .flatten()
@@ -142,10 +154,10 @@ impl SignatureKeyPair {
     pub fn delete<T: StorageProvider<CURRENT_VERSION>>(
         store: &T,
         public_key: &[u8],
-        signature_scheme: SignatureScheme,
+        ciphersuite: Ciphersuite,
     ) -> Result<(), T::Error> {
         let id = StorageId {
-            value: id(public_key, signature_scheme),
+            value: id(public_key, ciphersuite),
         };
         store.delete_signature_key_pair(&id)
     }
@@ -160,9 +172,9 @@ impl SignatureKeyPair {
         self.public.clone()
     }
 
-    /// Get the [`SignatureScheme`] of this signature key.
-    pub fn signature_scheme(&self) -> SignatureScheme {
-        self.signature_scheme
+    /// Get the ciphersuite of this signature key.
+    pub fn ciphersuite(&self) -> Ciphersuite {
+        self.ciphersuite
     }
 
     #[cfg(feature = "test-utils")]

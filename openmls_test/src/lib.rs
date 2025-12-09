@@ -20,7 +20,7 @@ pub fn openmls_test(_attr: TokenStream, item: TokenStream) -> TokenStream {
     let mut test_funs = Vec::new();
 
     for ciphersuite in rc_ciphersuites {
-        let val = ciphersuite as u16;
+        let val = u16::from(ciphersuite);
         let ciphersuite_name = format!("{ciphersuite:?}");
         let name = format_ident!("{}_rustcrypto_{}", fn_name, ciphersuite_name);
         let test_fun = quote! {
