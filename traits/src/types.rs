@@ -48,6 +48,59 @@ impl std::fmt::Display for CryptoError {
 
 impl std::error::Error for CryptoError {}
 
+/// SignatureScheme according to IANA TLS parameters
+#[allow(non_camel_case_types)]
+#[allow(clippy::upper_case_acronyms)]
+#[derive(
+    Copy,
+    Hash,
+    Eq,
+    PartialEq,
+    Clone,
+    Debug,
+    Serialize,
+    Deserialize,
+    TlsSerialize,
+    TlsDeserialize,
+    TlsDeserializeBytes,
+    TlsSize,
+)]
+#[repr(u16)]
+pub enum SignatureScheme {
+    /// ECDSA_SECP256R1_SHA256
+    ECDSA_SECP256R1_SHA256 = 0x0403,
+    /// ECDSA_SECP384R1_SHA384
+    ECDSA_SECP384R1_SHA384 = 0x0503,
+    /// ECDSA_SECP521R1_SHA512
+    ECDSA_SECP521R1_SHA512 = 0x0603,
+    /// ED25519
+    ED25519 = 0x0807,
+    /// ED448
+    ED448 = 0x0808,
+}
+
+impl TryFrom<u16> for SignatureScheme {
+    type Error = String;
+
+    fn try_from(value: u16) -> Result<Self, Self::Error> {
+        match value {
+            0x0403 => Ok(SignatureScheme::ECDSA_SECP256R1_SHA256),
+            0x0503 => Ok(SignatureScheme::ECDSA_SECP384R1_SHA384),
+            0x0603 => Ok(SignatureScheme::ECDSA_SECP521R1_SHA512),
+            0x0807 => Ok(SignatureScheme::ED25519),
+            0x0808 => Ok(SignatureScheme::ED448),
+            _ => Err(format!("Unsupported SignatureScheme: {value}")),
+        }
+    }
+}
+
+impl From<Ciphersuite> for SignatureScheme {
+    #[inline(always)]
+    fn from(ciphersuite: Ciphersuite) -> Self {
+        ciphersuite.signature_algorithm()
+    }
+}
+
 // === HPKE === //
 
 /// Convenience tuple struct for an HPKE configuration.
@@ -334,5 +387,35 @@ impl Ciphersuite {
     pub const fn aead_nonce_length(&self) -> usize {
         // All supported AEAD algorithms use 12-byte nonces
         12
+    }
+
+    /// Get the [`SignatureScheme`] for this [`Ciphersuite`].
+    #[inline]
+    pub const fn signature_algorithm(&self) -> SignatureScheme {
+        match self {
+            Ciphersuite::MLS_128_DHKEMX25519_AES128GCM_SHA256_Ed25519
+            | Ciphersuite::MLS_128_DHKEMX25519_CHACHA20POLY1305_SHA256_Ed25519
+            | Ciphersuite::MLS_256_XWING_CHACHA20POLY1305_SHA256_Ed25519 => {
+                SignatureScheme::ED25519
+            }
+            Ciphersuite::MLS_128_DHKEMP256_AES128GCM_SHA256_P256 => {
+                SignatureScheme::ECDSA_SECP256R1_SHA256
+            }
+            Ciphersuite::MLS_256_DHKEMP521_AES256GCM_SHA512_P521 => {
+                SignatureScheme::ECDSA_SECP521R1_SHA512
+            }
+            Ciphersuite::MLS_256_DHKEMX448_AES256GCM_SHA512_Ed448
+            | Ciphersuite::MLS_256_DHKEMX448_CHACHA20POLY1305_SHA512_Ed448 => {
+                SignatureScheme::ED448
+            }
+            Ciphersuite::MLS_256_DHKEMP384_AES256GCM_SHA384_P384 => {
+                SignatureScheme::ECDSA_SECP384R1_SHA384
+            }
+            Ciphersuite::Custom(_) => {
+                // For custom ciphersuites, we default to ED25519
+                // This is arbitrary and may not be appropriate for all custom ciphersuites
+                SignatureScheme::ED25519
+            }
+        }
     }
 }
