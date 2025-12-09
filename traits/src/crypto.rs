@@ -5,8 +5,8 @@
 use tls_codec::SecretVLBytes;
 
 use crate::types::{
-    AeadType, Ciphersuite, CryptoError, ExporterSecret, HashType, HpkeCiphertext, HpkeConfig,
-    HpkeKeyPair, KemOutput, SignatureScheme,
+    Ciphersuite, CryptoError, ExporterSecret, HpkeCiphertext, HpkeConfig,
+    HpkeKeyPair, KemOutput,
 };
 
 pub trait OpenMlsCrypto: Send + Sync {
@@ -20,28 +20,28 @@ pub trait OpenMlsCrypto: Send + Sync {
 
     /// HKDF extract.
     ///
-    /// Returns an error if the [`HashType`] is not supported.
+    /// Returns an error if the ciphersuite is not supported.
     fn hkdf_extract(
         &self,
-        hash_type: HashType,
+        ciphersuite: Ciphersuite,
         salt: &[u8],
         ikm: &[u8],
     ) -> Result<SecretVLBytes, CryptoError>;
 
     fn hmac(
         &self,
-        hash_type: HashType,
+        ciphersuite: Ciphersuite,
         key: &[u8],
         message: &[u8],
     ) -> Result<SecretVLBytes, CryptoError>;
 
     /// HKDF expand.
     ///
-    /// Returns an error if the [`HashType`] is not supported or the output length
+    /// Returns an error if the ciphersuite is not supported or the output length
     /// is too long.
     fn hkdf_expand(
         &self,
-        hash_type: HashType,
+        ciphersuite: Ciphersuite,
         prk: &[u8],
         info: &[u8],
         okm_len: usize,
@@ -49,16 +49,16 @@ pub trait OpenMlsCrypto: Send + Sync {
 
     /// Hash the `data`.
     ///
-    /// Returns an error if the [`HashType`] is not supported.
-    fn hash(&self, hash_type: HashType, data: &[u8]) -> Result<Vec<u8>, CryptoError>;
+    /// Returns an error if the ciphersuite is not supported.
+    fn hash(&self, ciphersuite: Ciphersuite, data: &[u8]) -> Result<Vec<u8>, CryptoError>;
 
     /// AEAD encrypt with the given parameters.
     ///
-    /// Returns an error if the [`AeadType`] is not supported or an encryption
+    /// Returns an error if the ciphersuite is not supported or an encryption
     /// error occurs.
     fn aead_encrypt(
         &self,
-        alg: AeadType,
+        ciphersuite: Ciphersuite,
         key: &[u8],
         data: &[u8],
         nonce: &[u8],
@@ -67,11 +67,11 @@ pub trait OpenMlsCrypto: Send + Sync {
 
     /// AEAD decrypt with the given parameters.
     ///
-    /// Returns an error if the [`AeadType`] is not supported or a decryption
+    /// Returns an error if the ciphersuite is not supported or a decryption
     /// error occurs.
     fn aead_decrypt(
         &self,
-        alg: AeadType,
+        ciphersuite: Ciphersuite,
         key: &[u8],
         ct_tag: &[u8],
         nonce: &[u8],
@@ -80,17 +80,17 @@ pub trait OpenMlsCrypto: Send + Sync {
 
     /// Generate a signature key.
     ///
-    /// Returns an error if the [`SignatureScheme`] is not supported or the key
+    /// Returns an error if the ciphersuite is not supported or the key
     /// generation fails.
-    fn signature_key_gen(&self, alg: SignatureScheme) -> Result<(Vec<u8>, Vec<u8>), CryptoError>;
+    fn signature_key_gen(&self, ciphersuite: Ciphersuite) -> Result<(Vec<u8>, Vec<u8>), CryptoError>;
 
     /// Verify the signature
     ///
-    /// Returns an error if the [`SignatureScheme`] is not supported or the
+    /// Returns an error if the ciphersuite is not supported or the
     /// signature verification fails.
     fn verify_signature(
         &self,
-        alg: SignatureScheme,
+        ciphersuite: Ciphersuite,
         data: &[u8],
         pk: &[u8],
         signature: &[u8],
@@ -98,9 +98,9 @@ pub trait OpenMlsCrypto: Send + Sync {
 
     /// Sign with the given parameters.
     ///
-    /// Returns an error if the [`SignatureScheme`] is not supported or an error
+    /// Returns an error if the ciphersuite is not supported or an error
     /// occurs during signature generation.
-    fn sign(&self, alg: SignatureScheme, data: &[u8], key: &[u8]) -> Result<Vec<u8>, CryptoError>;
+    fn sign(&self, ciphersuite: Ciphersuite, data: &[u8], key: &[u8]) -> Result<Vec<u8>, CryptoError>;
 
     // === HPKE === //
 

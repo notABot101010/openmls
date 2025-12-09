@@ -1,4 +1,4 @@
-use crate::types::{CryptoError, SignatureScheme};
+use crate::types::{Ciphersuite, CryptoError};
 /// Trait errors.
 #[derive(Debug, PartialEq, Eq, Clone, Copy)]
 pub enum SignerError {
@@ -14,6 +14,6 @@ pub trait Signer {
     /// Returns a signature on success or an Error.
     fn sign(&self, payload: &[u8]) -> Result<Vec<u8>, SignerError>;
 
-    /// The [`SignatureScheme`] of this signer.
-    fn signature_scheme(&self) -> SignatureScheme;
+    /// The ciphersuite of this signer.
+    fn ciphersuite(&self) -> Ciphersuite;
 }
