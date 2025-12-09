@@ -5,8 +5,8 @@
 use tls_codec::SecretVLBytes;
 
 use crate::types::{
-    AeadType, Ciphersuite, CryptoError, ExporterSecret, HashType, HpkeCiphertext, HpkeConfig,
-    HpkeKeyPair, KemOutput, SignatureScheme,
+    Ciphersuite, CryptoError, ExporterSecret, HpkeCiphertext, HpkeKeyPair, KemOutput,
+    SignatureScheme,
 };
 
 pub trait OpenMlsCrypto: Send + Sync {
@@ -20,28 +20,28 @@ pub trait OpenMlsCrypto: Send + Sync {
 
     /// HKDF extract.
     ///
-    /// Returns an error if the [`HashType`] is not supported.
+    /// Returns an error if the [`Ciphersuite`] is not supported.
     fn hkdf_extract(
         &self,
-        hash_type: HashType,
+        ciphersuite: Ciphersuite,
         salt: &[u8],
         ikm: &[u8],
     ) -> Result<SecretVLBytes, CryptoError>;
 
     fn hmac(
         &self,
-        hash_type: HashType,
+        ciphersuite: Ciphersuite,
         key: &[u8],
         message: &[u8],
     ) -> Result<SecretVLBytes, CryptoError>;
 
     /// HKDF expand.
     ///
-    /// Returns an error if the [`HashType`] is not supported or the output length
+    /// Returns an error if the [`Ciphersuite`] is not supported or the output length
     /// is too long.
     fn hkdf_expand(
         &self,
-        hash_type: HashType,
+        ciphersuite: Ciphersuite,
         prk: &[u8],
         info: &[u8],
         okm_len: usize,
@@ -49,16 +49,16 @@ pub trait OpenMlsCrypto: Send + Sync {
 
     /// Hash the `data`.
     ///
-    /// Returns an error if the [`HashType`] is not supported.
-    fn hash(&self, hash_type: HashType, data: &[u8]) -> Result<Vec<u8>, CryptoError>;
+    /// Returns an error if the [`Ciphersuite`] is not supported.
+    fn hash(&self, ciphersuite: Ciphersuite, data: &[u8]) -> Result<Vec<u8>, CryptoError>;
 
     /// AEAD encrypt with the given parameters.
     ///
-    /// Returns an error if the [`AeadType`] is not supported or an encryption
+    /// Returns an error if the [`Ciphersuite`] is not supported or an encryption
     /// error occurs.
     fn aead_encrypt(
         &self,
-        alg: AeadType,
+        ciphersuite: Ciphersuite,
         key: &[u8],
         data: &[u8],
         nonce: &[u8],
@@ -67,11 +67,11 @@ pub trait OpenMlsCrypto: Send + Sync {
 
     /// AEAD decrypt with the given parameters.
     ///
-    /// Returns an error if the [`AeadType`] is not supported or a decryption
+    /// Returns an error if the [`Ciphersuite`] is not supported or a decryption
     /// error occurs.
     fn aead_decrypt(
         &self,
-        alg: AeadType,
+        ciphersuite: Ciphersuite,
         key: &[u8],
         ct_tag: &[u8],
         nonce: &[u8],
@@ -107,7 +107,7 @@ pub trait OpenMlsCrypto: Send + Sync {
     /// HPKE single-shot encryption of `ptxt` to `pk_r`, using `info` and `aad`.
     fn hpke_seal(
         &self,
-        config: HpkeConfig,
+        ciphersuite: Ciphersuite,
         pk_r: &[u8],
         info: &[u8],
         aad: &[u8],
@@ -118,7 +118,7 @@ pub trait OpenMlsCrypto: Send + Sync {
     /// `aad`.
     fn hpke_open(
         &self,
-        config: HpkeConfig,
+        ciphersuite: Ciphersuite,
         input: &HpkeCiphertext,
         sk_r: &[u8],
         info: &[u8],
@@ -130,7 +130,7 @@ pub trait OpenMlsCrypto: Send + Sync {
     /// The encapsulated secret is returned together with the exported secret.
     fn hpke_setup_sender_and_export(
         &self,
-        config: HpkeConfig,
+        ciphersuite: Ciphersuite,
         pk_r: &[u8],
         info: &[u8],
         exporter_context: &[u8],
@@ -142,7 +142,7 @@ pub trait OpenMlsCrypto: Send + Sync {
     /// Returns the exported secret.
     fn hpke_setup_receiver_and_export(
         &self,
-        config: HpkeConfig,
+        ciphersuite: Ciphersuite,
         enc: &[u8],
         sk_r: &[u8],
         info: &[u8],
@@ -153,7 +153,7 @@ pub trait OpenMlsCrypto: Send + Sync {
     /// Derive a new HPKE keypair from a given input key material.
     fn derive_hpke_keypair(
         &self,
-        config: HpkeConfig,
+        ciphersuite: Ciphersuite,
         ikm: &[u8],
     ) -> Result<HpkeKeyPair, CryptoError>;
 }
